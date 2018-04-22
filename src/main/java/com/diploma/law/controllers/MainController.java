@@ -21,6 +21,9 @@ public class MainController {
     UserService userService;
 
     @Autowired
+    GrammarsService grammarsService;
+
+    @Autowired
     TaskService taskService;
 
     @Autowired
@@ -52,7 +55,8 @@ public class MainController {
         if (problem.getText()!=null){
             String text = problem.getText();
             ArrayList<String> words = getWordsFromText(text);
-            ArrayList<List<WordformsEntity>> wordformsEntities = getAllWordForms(words);
+            ArrayList<WordformsEntity> wordformsEntities = getAllWordForms(words);
+
             ArrayList<LemmasEntity> lemmas = getAllLemmas(wordformsEntities);
             ArrayList<ObjectsEntity> objects = getAllObjects(lemmas);
             List<ClarifyingFactsEntity> listclarifyingfacts = findingAllClarifyingFactsThatBelongToTheObject(objects);//нашли все доп слова, которые подходят под объект жизнь человека
@@ -71,6 +75,11 @@ public class MainController {
                     articles.add(listclarifyingfacts.get(i).getCorpus().getArticle());
                 }
             }
+            List<List<GrammarsEntity>> grammarsWordFOrms = findingAllGrammarsWordFOrms(wordformsEntities);
+
+
+
+
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UsersEntity user = userService.FindByLogin(auth.getName());
             problem.setUsersByUser(user);
@@ -80,6 +89,16 @@ public class MainController {
             model.addAttribute("articles",articles);
         }
         return "problem";
+    }
+
+    private List<List<GrammarsEntity>> findingAllGrammarsWordFOrms(ArrayList<WordformsEntity> words) {
+        List<List<GrammarsEntity>> listGrammars = new ArrayList<>();
+        for (int i = 0; i < words.size(); i++) {
+            List<GrammarsEntity> newGramList = new ArrayList<>();
+            newGramList=(words.get(i).getGrammars());
+            listGrammars.add(newGramList);
+        }
+        return listGrammars;
     }
 
     private List<ClarifyingFactsEntity> findingAllClarifyingFactsThatBelongToTheObject(ArrayList<ObjectsEntity> objects) {
@@ -106,16 +125,12 @@ public class MainController {
     }
 
     private ArrayList<ObjectsEntity> getAllObjects(ArrayList<LemmasEntity> lemmas) {
-        ArrayList<ObjectsEntity> objects = new ArrayList<ObjectsEntity>();
         ArrayList<ObjectsEntity> res = new ArrayList<ObjectsEntity>();
+        Set<ObjectsEntity> set = new HashSet<ObjectsEntity>();
         for (int i = 0; i < lemmas.size(); i++) {
             for (int j = 0; j < lemmas.get(i).getObjects().size(); j++) {
-                objects.add(lemmas.get(i).getObjects().get(j));
+                set.add(lemmas.get(i).getObjects().get(j));
             }
-        }
-        Set<ObjectsEntity> set = new HashSet<ObjectsEntity>();
-        for (int i = 0; i < objects.size(); i++) {
-            set.add(objects.get(i));
         }
         ObjectsEntity[] result = set.toArray(new ObjectsEntity[set.size()]);
         for (int i = 0; i < result.length; i++) {
@@ -124,17 +139,11 @@ public class MainController {
         return res;
     }
 
-    private ArrayList<LemmasEntity> getAllLemmas(ArrayList<List<WordformsEntity>> wordformsEntities) {
-        ArrayList<LemmasEntity> lemmas = new ArrayList<LemmasEntity>();
+    private ArrayList<LemmasEntity> getAllLemmas(ArrayList<WordformsEntity> wordformsEntities) {
+        Set<LemmasEntity> set = new HashSet<LemmasEntity>();
         ArrayList<LemmasEntity> res = new ArrayList<LemmasEntity>();
         for (int i = 0; i < wordformsEntities.size(); i++) {
-            for (int j = 0; j < wordformsEntities.get(i).size(); j++) {
-                lemmas.add(wordformsEntities.get(i).get(j).getLemma());
-            }
-        }
-        Set<LemmasEntity> set = new HashSet<LemmasEntity>();
-        for (int i = 0; i < lemmas.size(); i++) {
-            set.add(lemmas.get(i));
+            set.add(wordformsEntities.get(i).getLemma());
         }
         LemmasEntity[] result = set.toArray(new LemmasEntity[set.size()]);
         for (int i = 0; i < result.length; i++) {
@@ -143,10 +152,13 @@ public class MainController {
         return res;
     }
 
-    private ArrayList<List<WordformsEntity>> getAllWordForms(ArrayList<String> words) {
-        ArrayList<List<WordformsEntity>> wordformsEntities = new ArrayList<List<WordformsEntity>>();
+    private ArrayList<WordformsEntity> getAllWordForms(ArrayList<String> words) {
+        ArrayList<WordformsEntity> wordformsEntities = new ArrayList<>();
         for (int i = 0; i < words.size(); i++) {
-            wordformsEntities.add(wordForms.FindByTitle(words.get(i)));
+            List<WordformsEntity> list = wordForms.FindByTitle(words.get(i));
+            for (int j = 0; j < list.size(); j++) {
+                wordformsEntities.add(list.get(j));
+            }
         }
         return wordformsEntities;
     }

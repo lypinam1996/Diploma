@@ -1,6 +1,8 @@
 package com.diploma.law.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,8 +16,8 @@ public class ObjectsEntity {
     private List<ClarifyingFactsEntity> clarifyingfacts;
     private List<LemmasEntity> lemmas;
 
-
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "ObjectsLemmas",
             joinColumns = {
                     @JoinColumn(name = "idObject")},

@@ -22,7 +22,7 @@ public class ArticlesEntity {
 
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "ArticlesProblems",
+    @JoinTable(name = "ProblemArticle",
             joinColumns = {
                     @JoinColumn(name = "idArticle")},
             inverseJoinColumns = {

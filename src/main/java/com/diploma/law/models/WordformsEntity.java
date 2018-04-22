@@ -1,5 +1,8 @@
 package com.diploma.law.models;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
@@ -9,9 +12,10 @@ import java.util.Objects;
 public class WordformsEntity {
     private int idWordform;
     private String title;
-  //  private List<GrammarsEntity> grammars;
+    private List<GrammarsEntity> grammars;
     private LemmasEntity lemma;
 
+    @LazyCollection(LazyCollectionOption.FALSE)
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="idLemma")
     public LemmasEntity getLemma() {
@@ -21,8 +25,8 @@ public class WordformsEntity {
         this.lemma = lemma;
     }
 
-
- /*   @ManyToMany(cascade = CascadeType.ALL)
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "WordformsGrammars",
             joinColumns = {
                     @JoinColumn(name = "idWordform")},
@@ -34,7 +38,7 @@ public class WordformsEntity {
 
     public void setGrammars(List<GrammarsEntity> grammars) {
         this.grammars = grammars;
-    }*/
+    }
 
     @Id
     @Column(name = "idWordform")

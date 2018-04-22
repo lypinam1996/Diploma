@@ -15,7 +15,7 @@ public class GrammarsServiceImpl implements GrammarsService{
 
 
     @Override
-    public GrammarsEntity findById(int id) {
+    public  List<GrammarsEntity> findById(int id) {
         return grammars.findById(id);
     }
 

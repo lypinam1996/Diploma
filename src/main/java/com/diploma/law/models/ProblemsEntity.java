@@ -16,7 +16,7 @@ public class ProblemsEntity {
 
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "ArticlesProblems",
+    @JoinTable(name = "ProblemArticle",
             joinColumns = {
                     @JoinColumn(name = "idProblem")},
             inverseJoinColumns = {

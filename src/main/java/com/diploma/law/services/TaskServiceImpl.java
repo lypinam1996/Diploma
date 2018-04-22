@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service("TaskService")
 @Transactional
-public class TaskServiceImplementation  implements TaskService{
+public class TaskServiceImpl implements TaskService{
 
     @Autowired
     TaskDAO taskDAO;

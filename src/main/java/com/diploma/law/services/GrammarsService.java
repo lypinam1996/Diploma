@@ -4,7 +4,7 @@ import java.util.List;
 
 
 public interface GrammarsService {
-    GrammarsEntity findById(int id);
+    List<GrammarsEntity> findById(int id);
     GrammarsEntity FindByTitle(String title);
     List<GrammarsEntity> findAllGrammars();
 }
