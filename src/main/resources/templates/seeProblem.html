@@ -13,27 +13,20 @@
     <form th:action="@{/logout}" method="post">
         <button class="btn btn-md btn-warning btn-block" type="submit">Выйти</button>
     </form>
-    <h2 align="center">  Прошлые задачи   </h2>
+    <h2 align="center"> Задача   </h2>
     <table class="table table-hover">
-        <tr>
-            <td>Краткая информация</td>
-            <td></td>
-            <td></td>
+        <tr th:each="t : ${task}">
+        <tr> <td>Краткая информация по делу</td><td th:text="${t.title}">&nbsp;</td></tr>
+        <tr> <td>Текст дела</td><td th:text="${t.text}">&nbsp;</td></tr>
         </tr>
-        <tr th:each="t : ${tasks}">
-            <td th:text="${t.title}">&nbsp;</td>
-            <td>
-                <a th:href="@{${t.idProblem}+'/seeProblem'}">Полная информация</a>
-            </td>
-            <td>
-                <a th:href="@{${t.idProblem}+'/deleteProblem'}">Удалить</a>
-            </td>
+        <tr th:each="a : ${articles}">
+        <tr> <td>Статья</td> <td th:text=" ${a.number}"></td></tr>
+        <tr> <td>Глава</td><td th:text="${a.section}"></td></tr>
+        <tr> <td>Название</td>  <td th:text="${a.title}"></td></tr>
+        <tr> <td>Содержание</td> <td th:text="${a.text}"></td></tr>
         </tr>
     </table>
-    <form th:action="@{/problem}" method="post">
-        <button class="btn btn-md btn-warning btn-block" type="submit">Решить задачу</button>
-    </form>
+    <a th:href="@{'/home'}" class="btn btn-md btn-warning btn-block">На главную</a>
 </div>
-
 </body>
 </html>

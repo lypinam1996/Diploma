@@ -16,7 +16,7 @@ public class TaskDAOImplementation extends AbstractDAO<Integer,ProblemsEntity> i
     @Override
     public ProblemsEntity findById(int id) {
         Criteria criteria = getSession().createCriteria(ProblemsEntity.class);
-        criteria.add(Restrictions.eq("idTask", id));
+        criteria.add(Restrictions.eq("idProblem", id));
         return (ProblemsEntity) criteria.uniqueResult();
     }
 
@@ -45,6 +45,13 @@ public class TaskDAOImplementation extends AbstractDAO<Integer,ProblemsEntity> i
     @Override
     public void saveTask(ProblemsEntity task) {
         getSession().save(task);
+    }
+
+    @Override
+    public void deleteTask(int id) {
+        Query query = getSession().createSQLQuery("DELETE from Problems where idProblem=:id");
+        query.setInteger("id", id);
+        query.executeUpdate();
     }
 }
 

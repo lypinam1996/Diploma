@@ -1,5 +1,8 @@
 package com.diploma.law.models;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
@@ -15,6 +18,7 @@ public class ProblemsEntity {
     private UsersEntity usersByUser;
 
 
+    @LazyCollection(LazyCollectionOption.FALSE)
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "ProblemArticle",
             joinColumns = {

@@ -1,6 +1,8 @@
 package com.diploma.law.models;
 
 import org.hibernate.annotations.GeneratorType;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.omg.CORBA.portable.IDLEntity;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 
@@ -21,6 +23,7 @@ public class ArticlesEntity {
     private List<ProblemsEntity> problems;
 
 
+    @LazyCollection(LazyCollectionOption.FALSE)
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "ProblemArticle",
             joinColumns = {

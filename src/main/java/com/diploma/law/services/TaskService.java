@@ -10,4 +10,5 @@ public interface TaskService {
     List<ProblemsEntity> findAllTasks();
     void saveTask(ProblemsEntity task);
     List<ProblemsEntity> findTasks(UsersEntity user);
+    void deleteTask(int id);
 }

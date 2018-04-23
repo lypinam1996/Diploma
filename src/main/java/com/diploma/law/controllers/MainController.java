@@ -9,8 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.*;
 
@@ -34,6 +36,7 @@ public class MainController {
 
     @Autowired
     ClarifyingFactsService clarifyingFacts;
+
 
 
 
@@ -76,7 +79,7 @@ public class MainController {
                 }
             }
             List<List<GrammarsEntity>> grammarsWordFOrms = findingAllGrammarsWordFOrms(wordformsEntities);
-
+            List<List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmas);
 
 
 
@@ -90,6 +93,37 @@ public class MainController {
         }
         return "problem";
     }
+
+    @RequestMapping(value = "/{id}/seeProblem", method = RequestMethod.GET)
+    public ModelAndView seeProblem(@PathVariable int id){
+        ProblemsEntity problem = taskService.findById(id);
+        ModelAndView model = new ModelAndView();
+        List<ArticlesEntity> articles = problem.getArticle();
+        model.addObject("task",problem);
+        model.addObject("articles",articles);
+        model.setViewName("seeProblem");
+        return model;
+    }
+
+
+    @RequestMapping(value = "/{id}/deleteProblem", method = RequestMethod.GET)
+    public ModelAndView deleteProblem(@PathVariable int id){
+        ModelAndView model = new ModelAndView();
+        taskService.deleteTask(id);
+        model.setViewName("deleteProblem");
+        return model;
+    }
+
+    private List<List<GrammarsEntity>> findingAllGrammarsLemmas(ArrayList<LemmasEntity> lemmas) {
+        List<List<GrammarsEntity>> listGrammars = new ArrayList<>();
+        for (int i = 0; i < lemmas.size(); i++) {
+            List<GrammarsEntity> newGramList = new ArrayList<>();
+            newGramList=(lemmas.get(i).getGrammars());
+            listGrammars.add(newGramList);
+        }
+        return listGrammars;
+    }
+
 
     private List<List<GrammarsEntity>> findingAllGrammarsWordFOrms(ArrayList<WordformsEntity> words) {
         List<List<GrammarsEntity>> listGrammars = new ArrayList<>();

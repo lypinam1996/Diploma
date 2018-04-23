@@ -39,4 +39,9 @@ public class TaskServiceImpl implements TaskService{
     public List<ProblemsEntity> findTasks(UsersEntity user) {
         return taskDAO.findTasks(user);
     }
+
+    @Override
+    public void deleteTask(int id){
+        taskDAO.deleteTask(id);
+    }
 }
