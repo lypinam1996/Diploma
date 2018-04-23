@@ -46,6 +46,12 @@
             <tr> <td>Название</td>  <td th:text="${a.title}"></td></tr>
             <tr> <td>Содержание</td> <td th:text="${a.text}"></td></tr>
             </tr>
+            <tr th:each="s : ${subject}">
+            <tr> <td>Субъект</td> <td th:text=" ${s.title}"></td></tr>
+            </tr>
+            <tr th:each="v : ${victim}">
+            <tr> <td>Пострадавший</td> <td th:text=" ${v.title}"></td></tr>
+            </tr>
         </table>
         </div>
     </div>

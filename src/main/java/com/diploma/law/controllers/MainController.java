@@ -2,6 +2,7 @@ package com.diploma.law.controllers;
 
 import com.diploma.law.models.*;
 import com.diploma.law.services.*;
+import ognl.IntHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -78,11 +79,13 @@ public class MainController {
                     articles.add(listclarifyingfacts.get(i).getCorpus().getArticle());
                 }
             }
-            List<List<GrammarsEntity>> grammarsWordFOrms = findingAllGrammarsWordFOrms(wordformsEntities);
-            List<List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmas);
-
-
-
+            Map<WordformsEntity,List<GrammarsEntity>> grammarsWordFOrms = findingAllGrammarsWordFOrms(wordformsEntities);
+            Map<LemmasEntity,List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmas);
+            List<LemmasEntity> lemmaNouns = findingAllLemmasWhichAreNouns(grammarsLemmas);
+            ArrayList<WordformsEntity> wordformsIm = findingAllWordsWhicAreIm(grammarsWordFOrms);
+            List<LemmasEntity> subjects = getSubject(wordformsIm,lemmaNouns);
+            ArrayList<WordformsEntity> wordformsVict = findingAllWordsWhicAreVIctim(grammarsWordFOrms);
+            List<LemmasEntity> victims = getSubject(wordformsVict,lemmaNouns);
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             UsersEntity user = userService.FindByLogin(auth.getName());
             problem.setUsersByUser(user);
@@ -90,6 +93,8 @@ public class MainController {
             problem.setText(text);
             taskService.saveTask(problem);
             model.addAttribute("articles",articles);
+            model.addAttribute("subject",subjects);
+            model.addAttribute("victim",victims);
         }
         return "problem";
     }
@@ -114,23 +119,101 @@ public class MainController {
         return model;
     }
 
-    private List<List<GrammarsEntity>> findingAllGrammarsLemmas(ArrayList<LemmasEntity> lemmas) {
-        List<List<GrammarsEntity>> listGrammars = new ArrayList<>();
+
+
+    private ArrayList<LemmasEntity> getSubject(ArrayList<WordformsEntity> words, List<LemmasEntity> lemmasEntities) {
+        ArrayList<LemmasEntity> result = new ArrayList<>();
+        List<LemmasEntity> lemm = new ArrayList<>();
+        lemm=getAllLemmas(words);
+        for (int i = 0; i < lemm.size(); i++) {
+            for (int j = 0; j < lemmasEntities.size(); j++) {
+                if(lemm.get(i).equals(lemmasEntities.get(j))){
+                    result.add(lemm.get(i));
+                }
+            }
+        }
+        return result;
+    }
+
+    private ArrayList<WordformsEntity> findingAllWordsWhicAreIm(Map<WordformsEntity,List<GrammarsEntity>> grammars) {
+        ArrayList<WordformsEntity> wordformsEntities = new ArrayList<>();
+        int k =0;
+
+        List<WordformsEntity> keys = new ArrayList<WordformsEntity>(grammars.keySet());
+        for(int i = 0; i < keys.size(); i++) {
+            WordformsEntity key = keys.get(i);
+            List<GrammarsEntity> gram = grammars.get(key);
+            k=0;
+            for (int j = 0; j < gram.size(); j++){
+                if (gram.get(j).getIdGrammar().equals("nomn") ) {
+                    wordformsEntities.add(key);
+                }
+            }
+        }
+        return wordformsEntities;
+    }
+
+    private ArrayList<WordformsEntity> findingAllWordsWhicAreVIctim(Map<WordformsEntity,List<GrammarsEntity>> grammars) {
+        ArrayList<WordformsEntity> wordformsEntities = new ArrayList<>();
+        int k =0;
+
+        List<WordformsEntity> keys = new ArrayList<WordformsEntity>(grammars.keySet());
+        for(int i = 0; i < keys.size(); i++) {
+            WordformsEntity key = keys.get(i);
+            List<GrammarsEntity> gram = grammars.get(key);
+            k=0;
+            for (int j = 0; j < gram.size(); j++){
+                if (    gram.get(j).getIdGrammar().equals("accs") ||
+                        gram.get(j).getIdGrammar().equals("datv") ||
+                        gram.get(j).getIdGrammar().equals("loct") ||
+                        gram.get(j).getIdGrammar().equals("gent") ||
+                        gram.get(j).getIdGrammar().equals("ablt")) {
+                    wordformsEntities.add(key);
+                }
+            }
+        }
+        return wordformsEntities;
+    }
+
+
+    private List<LemmasEntity> findingAllLemmasWhichAreNouns(Map<LemmasEntity,List<GrammarsEntity>> grammars) {
+        List<LemmasEntity> lemmasEntities = new ArrayList<>();
+        int k =0;
+
+        List<LemmasEntity> keys = new ArrayList<LemmasEntity>(grammars.keySet());
+        for(int i = 0; i < keys.size(); i++) {
+            LemmasEntity key = keys.get(i);
+            List<GrammarsEntity> gram = grammars.get(key);
+            k=0;
+            for (int j = 0; j < gram.size(); j++){
+                if(gram.get(j).getIdGrammar().equals("NOUN") || gram.get(j).getIdGrammar().equals("anim")){
+                    k++;
+                }
+            }
+            if(k==2){
+                lemmasEntities.add(key);
+            }
+        }
+        return lemmasEntities;
+    }
+
+    private  Map<LemmasEntity,List<GrammarsEntity>> findingAllGrammarsLemmas(ArrayList<LemmasEntity> lemmas) {
+        Map<LemmasEntity,List<GrammarsEntity>> listGrammars = new HashMap<>();
         for (int i = 0; i < lemmas.size(); i++) {
             List<GrammarsEntity> newGramList = new ArrayList<>();
             newGramList=(lemmas.get(i).getGrammars());
-            listGrammars.add(newGramList);
+            listGrammars.put(lemmas.get(i),newGramList);
         }
         return listGrammars;
     }
 
 
-    private List<List<GrammarsEntity>> findingAllGrammarsWordFOrms(ArrayList<WordformsEntity> words) {
-        List<List<GrammarsEntity>> listGrammars = new ArrayList<>();
+    private Map<WordformsEntity,List<GrammarsEntity>> findingAllGrammarsWordFOrms(ArrayList<WordformsEntity> words) {
+        Map<WordformsEntity,List<GrammarsEntity>> listGrammars = new HashMap<>();
         for (int i = 0; i < words.size(); i++) {
             List<GrammarsEntity> newGramList = new ArrayList<>();
             newGramList=(words.get(i).getGrammars());
-            listGrammars.add(newGramList);
+            listGrammars.put(words.get(i),newGramList);
         }
         return listGrammars;
     }
@@ -173,7 +256,7 @@ public class MainController {
         return res;
     }
 
-    private ArrayList<LemmasEntity> getAllLemmas(ArrayList<WordformsEntity> wordformsEntities) {
+    private static ArrayList<LemmasEntity> getAllLemmas(ArrayList<WordformsEntity> wordformsEntities) {
         Set<LemmasEntity> set = new HashSet<LemmasEntity>();
         ArrayList<LemmasEntity> res = new ArrayList<LemmasEntity>();
         for (int i = 0; i < wordformsEntities.size(); i++) {
