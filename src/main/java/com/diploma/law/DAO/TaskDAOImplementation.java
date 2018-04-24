@@ -29,7 +29,7 @@ public class TaskDAOImplementation extends AbstractDAO<Integer,ProblemsEntity> i
 
     @Override
     public List<ProblemsEntity> findTasks(UsersEntity user){
-        Query query = getSession().createQuery("from Problems where user = :paramName");
+        Query query = getSession().createQuery("from ProblemsEntity where usersByUser = :paramName");
         query.setParameter("paramName", user);
         List list = query.list();
         return list;

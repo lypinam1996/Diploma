@@ -13,6 +13,15 @@ public class ClarifyingFactsEntity {
     private CorpusesEntity corpus;
     private ObjectsEntity object;
     private LemmasEntity lemma;
+    private String question;
+
+    public String getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(String question) {
+        this.question = question;
+    }
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="idLemma")

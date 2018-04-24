@@ -10,15 +10,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import javax.sql.DataSource;
-
 
 @Configuration
 @EnableWebSecurity
 public class AppConfig extends WebSecurityConfigurerAdapter{
 
+
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @Qualifier("dataSource")
     @Autowired
@@ -28,11 +29,12 @@ public class AppConfig extends WebSecurityConfigurerAdapter{
     private String usersQuery;
 
 
+
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.jdbcAuthentication().dataSource(dataSource)
+        auth.jdbcAuthentication()
                 .usersByUsernameQuery("select login, password, status from users  where login=?")
-                .authoritiesByUsernameQuery("select u.login, s.title from users u join status s on(u.status = s.id_status) where u.login=?");
+                .authoritiesByUsernameQuery("select u.login, s.title from users u join status s on(u.status = s.id_status) where u.login=?").dataSource(dataSource).passwordEncoder(passwordEncoder);;
     }
 
     @Override
@@ -57,6 +59,7 @@ public class AppConfig extends WebSecurityConfigurerAdapter{
         web.ignoring()
                 .antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/img/**");
     }
+
 
 
 }

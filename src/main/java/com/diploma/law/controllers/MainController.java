@@ -15,6 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.*;
 
 @Controller
@@ -46,7 +51,7 @@ public class MainController {
         List<ProblemsEntity> tasks;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UsersEntity user = userService.FindByLogin(auth.getName());
-        tasks = taskService.findAllTasks();
+        tasks = taskService.findTasks(user);
         model.addAttribute("tasks",tasks);
         return "mainPage";
     }
@@ -55,49 +60,71 @@ public class MainController {
 
     @RequestMapping(value = "/problem", method = RequestMethod.POST)
     public String add(@ModelAttribute("problem") ProblemsEntity problem,
-                                          Model model) {
+                                          Model model,BindingResult bindingResult) {
+
         if (problem.getText()!=null){
             String text = problem.getText();
             ArrayList<String> words = getWordsFromText(text);
             ArrayList<WordformsEntity> wordformsEntities = getAllWordForms(words);
-
             ArrayList<LemmasEntity> lemmas = getAllLemmas(wordformsEntities);
             ArrayList<ObjectsEntity> objects = getAllObjects(lemmas);
-            List<ClarifyingFactsEntity> listclarifyingfacts = findingAllClarifyingFactsThatBelongToTheObject(objects);//нашли все доп слова, которые подходят под объект жизнь человека
-            List<ClarifyingFactsEntity> cf = new ArrayList<ClarifyingFactsEntity>();
-            List<ArticlesEntity> articles = new ArrayList<>();
-            if (findingAllClarifyingFactsThatOccurInTheText(lemmas, listclarifyingfacts).size()!=0)//проверяет есть ли леммы, которые подходят под под статьи
-            {
-                cf = findingAllClarifyingFactsThatOccurInTheText(lemmas,listclarifyingfacts);//находит эти леммы
-                for(int i=0;i<cf.size();i++) {
-                    articles.add(cf.get(i).getCorpus().getArticle());
-                }
+            if (objects.isEmpty()) {
+                bindingResult
+                        .rejectValue("title", "error.title",
+                                "*Не возможно квалифицировать данное преступление. Пожалуйса, переформулируйте его другими словами.");
             }
             else{
-                for(int i=0;i<listclarifyingfacts.size();i++) {
-                    if (listclarifyingfacts.get(i).getLemma()==null)
-                    articles.add(listclarifyingfacts.get(i).getCorpus().getArticle());
+                List<ClarifyingFactsEntity> listclarifyingfacts = findingAllClarifyingFactsThatBelongToTheObject(objects);//нашли все доп слова, которые подходят под объект жизнь человека
+                List<ClarifyingFactsEntity> cf = new ArrayList<ClarifyingFactsEntity>();
+                List<ArticlesEntity> articles = new ArrayList<>();
+                if (findingAllClarifyingFactsThatOccurInTheText(lemmas, listclarifyingfacts).size()!=0)//проверяет есть ли леммы, которые подходят под под статьи
+                {
+                    cf = findingAllClarifyingFactsThatOccurInTheText(lemmas,listclarifyingfacts);//находит эти леммы
+                    for(int i=0;i<cf.size();i++) {
+                        String information=cf.get(i).getQuestion();
+                        ClassNameHere class1 = new ClassNameHere();
+                        boolean result = class1.infoBox(information, "Вопрос");
+                        if (result) {
+                            articles.add(cf.get(i).getCorpus().getArticle());
+                        }
+                        else{
+                            for(int g=0;g<listclarifyingfacts.size();g++) {
+                                if (listclarifyingfacts.get(g).getLemma()==null)
+                                    articles.add(listclarifyingfacts.get(g).getCorpus().getArticle());
+                            }
+                        }
+                    }
                 }
+                else{
+                    for(int i=0;i<listclarifyingfacts.size();i++) {
+                        if (listclarifyingfacts.get(i).getLemma()==null)
+                            articles.add(listclarifyingfacts.get(i).getCorpus().getArticle());
+                    }
+                }
+                Map<WordformsEntity,List<GrammarsEntity>> grammarsWordFOrms = findingAllGrammarsWordFOrms(wordformsEntities);
+                Map<LemmasEntity,List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmas);
+                List<LemmasEntity> lemmaNouns = findingAllLemmasWhichAreNouns(grammarsLemmas);
+                ArrayList<WordformsEntity> wordformsIm = findingAllWordsWhicAreIm(grammarsWordFOrms);
+                List<LemmasEntity> subjects = getSubject(wordformsIm,lemmaNouns);
+                List<LemmasEntity> finalSubjects = getFinalSubjects(subjects,"преступником");
+                ArrayList<WordformsEntity> wordformsVict = findingAllWordsWhicAreVIctim(grammarsWordFOrms);
+                List<LemmasEntity> victims = getSubject(wordformsVict,lemmaNouns);
+                List<LemmasEntity> finalVictims = getFinalSubjects(victims,"пострадавшим");
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                UsersEntity user = userService.FindByLogin(auth.getName());
+                problem.setUsersByUser(user);
+                problem.setArticle(articles);
+                problem.setText(text);
+                taskService.saveTask(problem);
+                model.addAttribute("articles",articles);
+                model.addAttribute("subject",subjects);
+                model.addAttribute("victim",victims);
             }
-            Map<WordformsEntity,List<GrammarsEntity>> grammarsWordFOrms = findingAllGrammarsWordFOrms(wordformsEntities);
-            Map<LemmasEntity,List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmas);
-            List<LemmasEntity> lemmaNouns = findingAllLemmasWhichAreNouns(grammarsLemmas);
-            ArrayList<WordformsEntity> wordformsIm = findingAllWordsWhicAreIm(grammarsWordFOrms);
-            List<LemmasEntity> subjects = getSubject(wordformsIm,lemmaNouns);
-            ArrayList<WordformsEntity> wordformsVict = findingAllWordsWhicAreVIctim(grammarsWordFOrms);
-            List<LemmasEntity> victims = getSubject(wordformsVict,lemmaNouns);
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            UsersEntity user = userService.FindByLogin(auth.getName());
-            problem.setUsersByUser(user);
-            problem.setArticle(articles);
-            problem.setText(text);
-            taskService.saveTask(problem);
-            model.addAttribute("articles",articles);
-            model.addAttribute("subject",subjects);
-            model.addAttribute("victim",victims);
+
         }
         return "problem";
     }
+
 
     @RequestMapping(value = "/{id}/seeProblem", method = RequestMethod.GET)
     public ModelAndView seeProblem(@PathVariable int id){
@@ -119,7 +146,17 @@ public class MainController {
         return model;
     }
 
-
+    private List<LemmasEntity> getFinalSubjects(List<LemmasEntity> allSubjects, String noun){
+        for(int i=0;i<allSubjects.size();i++) {
+            ClassNameHere class1 = new ClassNameHere();
+            String information = allSubjects.get(i).getTitle()+" является "+noun+"?";
+            boolean result = class1.infoBox(information, "Вопрос");
+            if (result==false) {
+                allSubjects.remove(i);
+            }
+        }
+        return allSubjects;
+    }
 
     private ArrayList<LemmasEntity> getSubject(ArrayList<WordformsEntity> words, List<LemmasEntity> lemmasEntities) {
         ArrayList<LemmasEntity> result = new ArrayList<>();

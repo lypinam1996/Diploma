@@ -4,6 +4,7 @@ import com.diploma.law.DAO.UserDAO;
 import com.diploma.law.models.StatusEntity;
 import com.diploma.law.models.UsersEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -18,6 +19,9 @@ public class UserServiceImplementation implements UserService {
 
     @Autowired
     StatusDAO statusDAO;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public UsersEntity findById(int id) {
@@ -36,11 +40,12 @@ public class UserServiceImplementation implements UserService {
 
     @Override
     public void saveUser(UsersEntity user) {
-
-
         StatusEntity status = statusDAO.findById(2);
-        user.setPassword(user.getPassword());
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setStatus(status);
+
         userDao.saveUser(user);
+
     }
 }

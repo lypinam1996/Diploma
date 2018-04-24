@@ -21,6 +21,8 @@
                   role="form">
                 <div class="form-group">
                     <div>
+                        <label th:if="${#fields.hasErrors('title')}" th:errors="*{title}"
+                               class="validation-message"></label>
                         <input type="text" th:field="*{title}" placeholder="Краткая информация"
                                class="form-control"/>
                         <textarea th:rows="18"  type="text" th:field="*{text}" placeholder="Текст"

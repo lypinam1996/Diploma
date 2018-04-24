@@ -22,6 +22,7 @@ public class UserDAOImplementation extends AbstractDAO<Integer,UsersEntity> impl
         return (UsersEntity) criteria.uniqueResult();
     }
 
+
     @Override
     public List<UsersEntity> findAllUsers() {
         Criteria criteria = getSession().createCriteria(UsersEntity.class);
