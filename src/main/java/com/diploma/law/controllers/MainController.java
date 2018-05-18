@@ -2,7 +2,13 @@ package com.diploma.law.controllers;
 
 import com.diploma.law.models.*;
 import com.diploma.law.services.*;
+import com.github.oxaoo.mp4ru.exceptions.FailedParsingException;
+import com.github.oxaoo.mp4ru.exceptions.InitRussianParserException;
+import com.github.oxaoo.mp4ru.syntax.RussianParser;
 import ognl.IntHashMap;
+import org.maltparser.MaltParserService;
+import org.maltparser.core.exception.MaltChainedException;
+import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,12 +53,16 @@ public class MainController {
 
 
     @RequestMapping(value = "/home", method = RequestMethod.GET)
-    public String getTasks(Model model){
+    public String getTasks(Model model) throws MaltChainedException, InitRussianParserException, FailedParsingException {
         List<ProblemsEntity> tasks;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UsersEntity user = userService.FindByLogin(auth.getName());
         tasks = taskService.findTasks(user);
         model.addAttribute("tasks",tasks);
+        RussianParser parser = new RussianParser("/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models/russian-utf8.par","/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models","/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models/russian.mco");
+        List<String> list = new ArrayList<>();
+        list=parser.parse("Мальчик был убит девочкой");
+        list.forEach(System.out::println);
         return "mainPage";
     }
     ////////////////////////////////
