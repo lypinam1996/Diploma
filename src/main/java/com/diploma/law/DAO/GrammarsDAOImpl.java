@@ -10,10 +10,10 @@ import java.util.List;
 @Repository("GrammarsDAO")
 public class GrammarsDAOImpl extends AbstractDAO<Integer,GrammarsEntity> implements GrammarsDAO{
     @Override
-    public List<GrammarsEntity> findById(int id) {
+    public GrammarsEntity findById(String  id) {
         Criteria criteria = getSession().createCriteria(GrammarsEntity.class);
         criteria.add(Restrictions.eq("idGrammar", id));
-        return (List<GrammarsEntity>) criteria.uniqueResult();
+        return (GrammarsEntity) criteria.uniqueResult();
     }
 
     @Override

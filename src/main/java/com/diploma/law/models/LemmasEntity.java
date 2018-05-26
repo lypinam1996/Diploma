@@ -32,7 +32,7 @@ public class LemmasEntity {
         this.grammars = grammars;
     }
 
-
+    @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "lemma", cascade = CascadeType.ALL)
     public List<WordformsEntity> getWordforms() {
         return wordforms;

@@ -49,9 +49,6 @@ public class MainController {
     @Autowired
     ClarifyingFactsService clarifyingFacts;
 
-
-
-
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String getTasks(Model model) throws MaltChainedException, InitRussianParserException, FailedParsingException {
         List<ProblemsEntity> tasks;
@@ -59,10 +56,6 @@ public class MainController {
         UsersEntity user = userService.FindByLogin(auth.getName());
         tasks = taskService.findTasks(user);
         model.addAttribute("tasks",tasks);
-        RussianParser parser = new RussianParser("/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models/russian-utf8.par","/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models","/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models/russian.mco");
-        List<String> list = new ArrayList<>();
-        list=parser.parse("Мальчик был убит девочкой");
-        list.forEach(System.out::println);
         return "mainPage";
     }
     ////////////////////////////////
@@ -70,15 +63,16 @@ public class MainController {
 
     @RequestMapping(value = "/problem", method = RequestMethod.POST)
     public String add(@ModelAttribute("problem") ProblemsEntity problem,
-                                          Model model,BindingResult bindingResult) {
+                                          Model model,BindingResult bindingResult) throws InitRussianParserException, FailedParsingException {
 
         if (problem.getText()!=null){
             String text = problem.getText();
-            ArrayList<String> words = getWordsFromText(text);
+             String[] sentences = getSenteses(text);
+            ArrayList<String> words = getWordsFromText(sentences);
             ArrayList<WordformsEntity> wordformsEntities = getAllWordForms(words);
             ArrayList<LemmasEntity> lemmas = getAllLemmas(wordformsEntities);
             ArrayList<ObjectsEntity> objects = getAllObjects(lemmas);
-            if (objects.isEmpty()) {
+          /* if (objects.isEmpty()) {
                 bindingResult
                         .rejectValue("title", "error.title",
                                 "*Не возможно квалифицировать данное преступление. Пожалуйса, переформулируйте его другими словами.");
@@ -111,29 +105,130 @@ public class MainController {
                             articles.add(listclarifyingfacts.get(i).getCorpus().getArticle());
                     }
                 }
-                Map<WordformsEntity,List<GrammarsEntity>> grammarsWordFOrms = findingAllGrammarsWordFOrms(wordformsEntities);
-                Map<LemmasEntity,List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmas);
-                List<LemmasEntity> lemmaNouns = findingAllLemmasWhichAreNouns(grammarsLemmas);
-                ArrayList<WordformsEntity> wordformsIm = findingAllWordsWhicAreIm(grammarsWordFOrms);
-                List<LemmasEntity> subjects = getSubject(wordformsIm,lemmaNouns);
-                List<LemmasEntity> finalSubjects = getFinalSubjects(subjects,"преступником");
-                ArrayList<WordformsEntity> wordformsVict = findingAllWordsWhicAreVIctim(grammarsWordFOrms);
-                List<LemmasEntity> victims = getSubject(wordformsVict,lemmaNouns);
-                List<LemmasEntity> finalVictims = getFinalSubjects(victims,"пострадавшим");
                 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
                 UsersEntity user = userService.FindByLogin(auth.getName());
                 problem.setUsersByUser(user);
                 problem.setArticle(articles);
                 problem.setText(text);
+               model.addAttribute("articles",articles);*/
+
+                String[] mainSentences = findingAllSentencesObjects(sentences,objects);
+                ArrayList<String[]> syntax = Syntax(mainSentences[0]);
+
+                ArrayList<String> wordsSentence = getWordsFromText(mainSentences);
+                ArrayList<WordformsEntity> wordformsSentence = getAllWordForms(wordsSentence);
+                ArrayList<LemmasEntity> lemmasSentence = getAllLemmas(wordformsSentence);
+                Map<WordformsEntity,List<GrammarsEntity>> grammarsWordForms = findingAllGrammarsWordForms(wordformsSentence);
+                Map<LemmasEntity,List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmasSentence);
+                List<LemmasEntity> lemmaNouns = findingAllLemmasWhichAreNouns(grammarsLemmas);
+                List<LemmasEntity> newNouns=checkNouns(grammarsLemmas, mainSentences[0],lemmaNouns);
+                List<ObjectsEntity> object = getAllObjects(lemmasSentence);
+                LemmasEntity lemmaObject =findLemmaWhichIsObject(object,lemmasSentence);
+                WordformsEntity wordformsObject = findWordFormWhichIsObject(lemmaObject,wordformsSentence);
+                int numberOfVerb=findVerb(syntax,wordformsObject);
+                List<WordformsEntity> wordformsNouns = findwordformsNouns(newNouns,wordformsSentence);
+                List<String> subject = findSubject(lemmaObject,numberOfVerb,syntax,wordformsNouns);
                 taskService.saveTask(problem);
-                model.addAttribute("articles",articles);
+
+
+              /*
                 model.addAttribute("subject",subjects);
                 model.addAttribute("victim",victims);
-            }
+            }*/
 
         }
         return "problem";
     }
+
+    private List<String> findSubject(LemmasEntity lemmaVerb, int verb, ArrayList<String[]> syntax,List<WordformsEntity> newNouns){
+        List<String> res = new ArrayList<>();
+        ArrayList<Integer> numbers = new ArrayList<>();
+        for(int i=0;i<newNouns.size();i++) {
+            numbers.add(findVerb(syntax,newNouns.get(i)));
+        }
+        List<GrammarsEntity> grammarsVerb = lemmaVerb.getGrammars();
+        GrammarsEntity passive = grammarsService.findById("pssv");
+        ArrayList<String[]> sub = new ArrayList<>();
+        ArrayList<String[]> others = new ArrayList<>();
+        for(int i=0;i<numbers.size();i++) {
+            if(syntax.get(numbers.get(i))[7].equals("предик")){
+                sub.add(syntax.get(numbers.get(i)));
+            }
+            else{
+                others.add(syntax.get(numbers.get(i)));
+            }
+        }
+        for(int i=0;i<grammarsVerb.size();i++) {
+            if(grammarsVerb.get(i).equals(passive)){
+                res.add(others.get(0)[1]);
+                res.add(sub.get(0)[1]);
+            }
+        }
+        if(res.isEmpty()){
+            res.add(sub.get(0)[1]);
+            res.add(others.get(0)[1]);
+        }
+        return res;
+    }
+
+    private ArrayList<Integer> findingMinInerval(ArrayList<Integer> nouns, int verb,ArrayList<String[]> syntax){
+        ArrayList<Integer> numbers = new ArrayList<>();
+        for(int i=0;i<nouns.size();i++) {
+            String[] synt = syntax.get(nouns.get(i));
+            String[] verbs = syntax.get(verb);
+            int count=Integer.parseInt(synt[6])-Integer.parseInt(verbs[6]);
+            if (count<0){
+                count=count*-1;
+            }
+            numbers.add(count);
+        }
+        return numbers;
+    }
+
+    private List<WordformsEntity> findwordformsNouns(List<LemmasEntity> lemmas,List<WordformsEntity> wordformsNouns){
+        List<WordformsEntity> wordforms = new ArrayList<>();
+        for(int i=0;i<lemmas.size();i++) {
+            wordforms.add(findWordFormWhichIsObject(lemmas.get(i), wordformsNouns));
+        }
+        return wordforms;
+    }
+
+    private int findVerb(ArrayList<String[]> syntax, WordformsEntity object){
+        int verb = -1;
+        for(int i=0;i<syntax.size();i++) {
+            if(syntax.get(i)[1].equals(object.getTitle())){
+                verb=i;
+            }
+        }
+        return verb;
+    }
+
+    private LemmasEntity findLemmaWhichIsObject(List<ObjectsEntity> object, ArrayList<LemmasEntity> lemmas) {
+        LemmasEntity res= new LemmasEntity();
+        List<LemmasEntity> lemmasObject = object.get(0).getLemmas();
+        for(int i=0;i<lemmas.size();i++){
+            for(int j=0;j<lemmasObject.size();j++){
+                if(lemmas.get(i).getTitle().equals(lemmasObject.get(j).getTitle())) {
+                    res=lemmas.get(i);
+                }
+            }
+        }
+        return res;
+    }
+
+    private WordformsEntity findWordFormWhichIsObject(LemmasEntity object, List<WordformsEntity> wordformsSentence) {
+        WordformsEntity res= new WordformsEntity();
+        List<WordformsEntity> wordforms = object.getWordforms();
+        for(int i=0;i<wordforms.size();i++){
+            for(int j=0;j<wordformsSentence.size();j++){
+                if(wordformsSentence.get(j).getTitle().equals(wordforms.get(i).getTitle())) {
+                    res = wordforms.get(i);
+                }
+           }
+        }
+        return res;
+    }
+
 
 
     @RequestMapping(value = "/{id}/seeProblem", method = RequestMethod.GET)
@@ -156,71 +251,20 @@ public class MainController {
         return model;
     }
 
-    private List<LemmasEntity> getFinalSubjects(List<LemmasEntity> allSubjects, String noun){
-        for(int i=0;i<allSubjects.size();i++) {
-            ClassNameHere class1 = new ClassNameHere();
-            String information = allSubjects.get(i).getTitle()+" является "+noun+"?";
-            boolean result = class1.infoBox(information, "Вопрос");
-            if (result==false) {
-                allSubjects.remove(i);
-            }
+    private  ArrayList<String[]> Syntax(String sentence) throws InitRussianParserException, FailedParsingException {
+        RussianParser parser = new RussianParser("/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models/russian-utf8.par","/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models","/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models/russian.mco");
+        List<String> list = new ArrayList<>();
+        list=parser.parse(sentence);
+        ArrayList<String[]> newlist = new ArrayList<>();
+        for(int i=0;i<=list.size()-1;i++){
+            list.get(i).trim();
+            String[] atr = list.get(i).split("\t");
+            newlist.add(atr);
         }
-        return allSubjects;
+        return newlist;
     }
 
-    private ArrayList<LemmasEntity> getSubject(ArrayList<WordformsEntity> words, List<LemmasEntity> lemmasEntities) {
-        ArrayList<LemmasEntity> result = new ArrayList<>();
-        List<LemmasEntity> lemm = new ArrayList<>();
-        lemm=getAllLemmas(words);
-        for (int i = 0; i < lemm.size(); i++) {
-            for (int j = 0; j < lemmasEntities.size(); j++) {
-                if(lemm.get(i).equals(lemmasEntities.get(j))){
-                    result.add(lemm.get(i));
-                }
-            }
-        }
-        return result;
-    }
 
-    private ArrayList<WordformsEntity> findingAllWordsWhicAreIm(Map<WordformsEntity,List<GrammarsEntity>> grammars) {
-        ArrayList<WordformsEntity> wordformsEntities = new ArrayList<>();
-        int k =0;
-
-        List<WordformsEntity> keys = new ArrayList<WordformsEntity>(grammars.keySet());
-        for(int i = 0; i < keys.size(); i++) {
-            WordformsEntity key = keys.get(i);
-            List<GrammarsEntity> gram = grammars.get(key);
-            k=0;
-            for (int j = 0; j < gram.size(); j++){
-                if (gram.get(j).getIdGrammar().equals("nomn") ) {
-                    wordformsEntities.add(key);
-                }
-            }
-        }
-        return wordformsEntities;
-    }
-
-    private ArrayList<WordformsEntity> findingAllWordsWhicAreVIctim(Map<WordformsEntity,List<GrammarsEntity>> grammars) {
-        ArrayList<WordformsEntity> wordformsEntities = new ArrayList<>();
-        int k =0;
-
-        List<WordformsEntity> keys = new ArrayList<WordformsEntity>(grammars.keySet());
-        for(int i = 0; i < keys.size(); i++) {
-            WordformsEntity key = keys.get(i);
-            List<GrammarsEntity> gram = grammars.get(key);
-            k=0;
-            for (int j = 0; j < gram.size(); j++){
-                if (    gram.get(j).getIdGrammar().equals("accs") ||
-                        gram.get(j).getIdGrammar().equals("datv") ||
-                        gram.get(j).getIdGrammar().equals("loct") ||
-                        gram.get(j).getIdGrammar().equals("gent") ||
-                        gram.get(j).getIdGrammar().equals("ablt")) {
-                    wordformsEntities.add(key);
-                }
-            }
-        }
-        return wordformsEntities;
-    }
 
 
     private List<LemmasEntity> findingAllLemmasWhichAreNouns(Map<LemmasEntity,List<GrammarsEntity>> grammars) {
@@ -241,7 +285,28 @@ public class MainController {
                 lemmasEntities.add(key);
             }
         }
+
         return lemmasEntities;
+    }
+
+
+
+    private List<LemmasEntity> checkNouns (Map<LemmasEntity,List<GrammarsEntity>> gramm, String sentence,List<LemmasEntity> nouns){
+        List<LemmasEntity> newLemma = new ArrayList<>();
+        GrammarsEntity init = grammarsService.findById("Init");
+        GrammarsEntity abbr = grammarsService.findById("Abbr");
+        for (int i = 0; i < nouns.size(); i++) {
+            List<GrammarsEntity> grammars = gramm.get(nouns.get(i));
+            if(grammars.contains(init) || grammars.contains(abbr)){
+                if(sentence.indexOf(nouns.get(i).getTitle()+".")>=0) {
+                    newLemma.add(nouns.get(i));
+                }
+            }
+            else{
+                newLemma.add(nouns.get(i));
+            }
+        }
+        return newLemma;
     }
 
     private  Map<LemmasEntity,List<GrammarsEntity>> findingAllGrammarsLemmas(ArrayList<LemmasEntity> lemmas) {
@@ -255,7 +320,7 @@ public class MainController {
     }
 
 
-    private Map<WordformsEntity,List<GrammarsEntity>> findingAllGrammarsWordFOrms(ArrayList<WordformsEntity> words) {
+    private Map<WordformsEntity,List<GrammarsEntity>> findingAllGrammarsWordForms(ArrayList<WordformsEntity> words) {
         Map<WordformsEntity,List<GrammarsEntity>> listGrammars = new HashMap<>();
         for (int i = 0; i < words.size(); i++) {
             List<GrammarsEntity> newGramList = new ArrayList<>();
@@ -264,6 +329,25 @@ public class MainController {
         }
         return listGrammars;
     }
+
+    private String[] findingAllSentencesObjects(String[] sentenses, List<ObjectsEntity> object){
+        List<LemmasEntity> objectsLemma = object.get(0).getLemmas();
+        String[] res= new String[1];
+        int k=0;
+        for (int i = 0; i < objectsLemma.size(); i++) {
+            for (int j = 0; j < sentenses.length; j++) {
+                if (sentenses[j].indexOf(objectsLemma.get(i).getTitle())>0){
+                    res[k]=sentenses[j];
+                    k++;
+                }
+            }
+        }
+        return res;
+    }
+
+
+
+
 
     private List<ClarifyingFactsEntity> findingAllClarifyingFactsThatBelongToTheObject(ArrayList<ObjectsEntity> objects) {
         List<ClarifyingFactsEntity> listclarifyingfacts = new ArrayList<>();
@@ -327,18 +411,26 @@ public class MainController {
         return wordformsEntities;
     }
 
-    private ArrayList<String> getWordsFromText(String text) {
-        String[] sentences = text.split("\\.");
+    private ArrayList<String> getWordsFromText(String[] sentences) {
         ArrayList<String> words = new ArrayList<String>();
         for (int i = 0; i < sentences.length; i++) {
             sentences[i] = sentences[i].replaceAll("[^A-Za-zА-Яа-я0-9,Ё,ё]", " ");
             sentences[i] = sentences[i].replaceAll("  ", " ");
+            sentences[i] = sentences[i].replaceAll(",", " ");
+            sentences[i] = sentences[i].replaceAll(":", " ");
+            sentences[i] = sentences[i].replaceAll(";", " ");
             String[] word = sentences[i].split(" ");
             for (int j = 0; j < word.length; j++) {
                 words.add(word[j].trim());
             }
         }
         return words;
+    }
+
+    private String[] getSenteses(String text){
+        text=text.toLowerCase(new Locale("ru"));
+        String[] sentences = text.split("\\.");
+        return sentences;
     }
 
 }
