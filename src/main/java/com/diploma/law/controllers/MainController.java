@@ -62,9 +62,16 @@ public class MainController {
         return "mainPage";
     }
 
+    @RequestMapping(value = "/problem", method = RequestMethod.GET)
+    public String getProblem(Model model)  {
+        ProblemsEntity problem = new ProblemsEntity();
+        model.addAttribute("problem",problem);
+        return "problem";
+    }
+
     @RequestMapping(value = "/problem", method = RequestMethod.POST)
     public String add(@ModelAttribute("problem") ProblemsEntity problem,
-                                          Model model,BindingResult bindingResult)  {
+                                          Model model,BindingResult bindingResult) throws FailedParsingException, InitRussianParserException {
 
         if (problem.getText()!=null){
             List<ArticlesEntity> articles = algorithm.qualifyOffense(problem,bindingResult);
@@ -74,39 +81,13 @@ public class MainController {
             problem.setArticle(articles);
             problem.setText(problem.getText());
             if(!articles.isEmpty()) {
+                List<String> subject = algorithm.getVictimAndSubject(problem.getText(),articles.get(0));
                 model.addAttribute("articles", articles);
                 taskService.saveTask(problem);
             }
-
-               /* String[] mainSentences = findingAllSentencesObjects(sentences,objects);
-                ArrayList<String[]> syntax = Syntax(mainSentences[0]);
-
-                ArrayList<String> wordsSentence = getWordsFromText(mainSentences);
-                ArrayList<WordformsEntity> wordformsSentence = getAllWordForms(wordsSentence);
-                ArrayList<LemmasEntity> lemmasSentence = getAllLemmas(wordformsSentence);
-                Map<WordformsEntity,List<GrammarsEntity>> grammarsWordForms = findingAllGrammarsWordForms(wordformsSentence);
-                Map<LemmasEntity,List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmasSentence);
-                List<LemmasEntity> lemmaNouns = findingAllLemmasWhichAreNouns(grammarsLemmas);
-                List<LemmasEntity> newNouns=checkNouns(grammarsLemmas, mainSentences[0],lemmaNouns);
-                List<ObjectsEntity> object = getAllObjects(lemmasSentence);
-                LemmasEntity lemmaObject =findLemmaWhichIsObject(object,lemmasSentence);
-                WordformsEntity wordformsObject = findWordFormWhichIsObject(lemmaObject,wordformsSentence);
-                int numberOfVerb=findVerb(syntax,wordformsObject);
-                List<WordformsEntity> wordformsNouns = findwordformsNouns(newNouns,wordformsSentence);
-                List<String> subject = findSubject(lemmaObject,numberOfVerb,syntax,wordformsNouns);*/
-
-
-
-              /*
-                model.addAttribute("subject",subjects);
-                model.addAttribute("victim",victims);
-            }*/
-
         }
         return "problem";
     }
-
-
 
 
     @RequestMapping(value = "/{id}/seeProblem", method = RequestMethod.GET)

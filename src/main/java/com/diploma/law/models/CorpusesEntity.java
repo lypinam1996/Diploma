@@ -1,5 +1,8 @@
 package com.diploma.law.models;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
@@ -12,7 +15,7 @@ public class CorpusesEntity {
     private ArticlesEntity article;
     private List<ClarifyingFactsEntity> clarifyingfacts;
 
-
+    @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "corpus")
     public List<ClarifyingFactsEntity> getClarifyingfacts() {
         return clarifyingfacts;
