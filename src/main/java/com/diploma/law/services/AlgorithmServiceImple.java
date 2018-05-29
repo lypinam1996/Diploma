@@ -85,8 +85,8 @@ public class AlgorithmServiceImple implements AlgorithmService{
     }
 
     @Override
-    public List<String> getVictimAndSubject(String text, ArticlesEntity article) {
-        List<String> subject= new ArrayList<>();
+    public ArrayList<ArrayList<String>> getVictimAndSubject(String text, ArticlesEntity article) {
+        ArrayList<ArrayList<String>> subject= new ArrayList<>();
       try {
           List<String> sentences = textSegmentation(text);
           ObjectsEntity object = article.getCorpus().getClarifyingfacts().get(0).getObject();
@@ -115,7 +115,7 @@ public class AlgorithmServiceImple implements AlgorithmService{
         return subject;
     }
 
-    private List<String> findSubject (LemmasEntity lemmaVerb,int verb, ArrayList<String[]>
+    private ArrayList<ArrayList<String>> findSubject (LemmasEntity lemmaVerb,int verb, ArrayList<String[]>
         syntax, List < WordformsEntity > newNouns){
         List<String> res = new ArrayList<>();
         ArrayList<Integer> numbers = new ArrayList<>();
@@ -133,8 +133,116 @@ public class AlgorithmServiceImple implements AlgorithmService{
         if(verbSyntax[7].equals("пасс-анал")){
             res=formList(nouns,false);
         }
+        ArrayList<ArrayList<String>> result = subjectVictims(res);
+
+        result=getFirstForm(result);
+        result=deleteSimilar(result);
+        return result;
+    }
+
+    private ArrayList<ArrayList<String>> subjectVictims(List<String> list) {
+        ArrayList<ArrayList<String>> res = new ArrayList<>();
+        ArrayList<String> subjects = new ArrayList<>();
+        ArrayList<String> victims = new ArrayList<>();
+        if (list.contains("subject")) {
+            int index = list.indexOf("subject");
+            for (int i = index + 1; i < list.size(); i++) {
+                subjects.add(list.get(i));
+            }
+            for (int i = 0; i < index; i++) {
+                victims.add(list.get(i));
+            }
+        } else {
+            int index = list.indexOf("victims");
+            for (int i = index + 1; i < list.size(); i++) {
+                victims.add(list.get(i));
+            }
+            for (int i = 0; i < index; i++) {
+                subjects.add(list.get(i));
+            }
+        }
+        res.add(subjects);
+        res.add(victims);
         return res;
     }
+
+    private ArrayList<ArrayList<String>> getFirstForm(ArrayList<ArrayList<String>> list){
+        ArrayList<ArrayList<String>> res = new ArrayList<>();
+        ArrayList<String> subjects = list.get(0);
+        ArrayList<String> victims = list.get(1);
+        subjects=findFirst(subjects, "subjects");
+        victims=findFirst(victims,"victims");
+        res.add(subjects);
+        res.add(victims);
+        return res;
+    }
+
+    private ArrayList<String> findFirst(ArrayList<String> subjects, String title){
+        GrammarsEntity gramIm = grammarsService.findById("nomn");
+        ArrayList<WordformsEntity> wordformsSubject = getAllWordForms(subjects);
+        int x=0;
+        subjects.clear();
+        boolean ok = true;
+        while(x<wordformsSubject.size() && ok  ){
+            int y =0;
+            List<GrammarsEntity> grammars = wordformsSubject.get(x).getGrammars();
+            while (y<grammars.size() && ok  ){
+                if (grammars.get(y).equals(gramIm)) {
+                    if(title.equals("subjects")) {
+                        subjects.add("Преступление совершил: "+wordformsSubject.get(x).getTitle());
+                        ok = false;
+                    }
+                    else{
+                        subjects.add("Пострадавшим является: "+wordformsSubject.get(x).getTitle());
+                        ok = false;
+                    }
+                }
+                else{
+                    y++;
+                }
+            }
+            x++;
+        }
+        if(ok) {
+            for (int i = 0; i < wordformsSubject.size(); i++) {
+                if(title.equals("subjects")) {
+                    subjects.add("Преступления было совершено: "+wordformsSubject.get(i).getTitle());
+                }
+                else{
+                    subjects.add("Противоправные действия, затронули: "+wordformsSubject.get(i).getTitle());
+                }
+            }
+        }
+        return subjects;
+    }
+
+
+    private ArrayList<ArrayList<String>> deleteSimilar(ArrayList<ArrayList<String>> list) {
+       ArrayList<ArrayList<String>> res = new ArrayList<>();
+       ArrayList<String> subjects = list.get(0);
+       ArrayList<String> victims = list.get(1);
+        for (int i = 0; i < subjects.size(); i++) {
+            for (int j = i+1; j < subjects.size(); j++) {
+                if (subjects.get(i).equals(subjects.get(j))){
+                    subjects.remove(j);
+                }
+            }
+        }
+        int count =victims.size();
+        for (int i = 0; i < count; i++) {
+            for (int j = i+1; j < count; j++) {
+                if (victims.get(i).equals(victims.get(j))){
+                    victims.remove(j);
+                    i--;
+                    count--;
+                }
+            }
+        }
+        res.add(subjects);
+        res.add(victims);
+        return res;
+    }
+
 
     private List<String> formList(ArrayList<String[]> nouns, boolean ok){
         List<String> res = new ArrayList<>();
@@ -144,7 +252,7 @@ public class AlgorithmServiceImple implements AlgorithmService{
             nouns.remove(subject.get(i));
         }
         if(ok==true) {
-            res.add("VICTIMS");
+            res.add("victims");
         }
         else {
             res.add("subject");

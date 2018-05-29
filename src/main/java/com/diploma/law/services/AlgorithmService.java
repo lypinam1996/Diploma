@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface AlgorithmService {
     List<ArticlesEntity> qualifyOffense(ProblemsEntity problem, BindingResult bindingResult);
-    List<String> getVictimAndSubject(String text, ArticlesEntity article);
+    ArrayList<ArrayList<String>> getVictimAndSubject(String text, ArticlesEntity article);
 }

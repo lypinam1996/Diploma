@@ -81,7 +81,9 @@ public class MainController {
             problem.setArticle(articles);
             problem.setText(problem.getText());
             if(!articles.isEmpty()) {
-                List<String> subject = algorithm.getVictimAndSubject(problem.getText(),articles.get(0));
+                ArrayList<ArrayList<String>> subject = algorithm.getVictimAndSubject(problem.getText(),articles.get(0));
+                List<String> subjects= new ArrayList<>();
+                List<String> victims= new ArrayList<>();
                 model.addAttribute("articles", articles);
                 taskService.saveTask(problem);
             }
@@ -109,6 +111,8 @@ public class MainController {
         model.setViewName("deleteProblem");
         return model;
     }
+
+
 
 
 
