@@ -48,11 +48,11 @@
             <tr> <td>Название</td>  <td th:text="${a.title}"></td></tr>
             <tr> <td>Содержание</td> <td th:text="${a.text}"></td></tr>
             </tr>
-            <tr th:each="s : ${subject}">
-            <tr> <td>Субъект</td> <td th:text=" ${s.title}"></td></tr>
+            <tr th:each="s : ${subjects}">
+            <tr>  <td></td><td th:text=" ${s}"></td></tr>
             </tr>
-            <tr th:each="v : ${victim}">
-            <tr> <td>Пострадавший</td> <td th:text=" ${v.title}"></td></tr>
+            <tr th:each="v : ${victims}">
+            <tr><td></td> <td th:text=" ${v}"></td></tr>
             </tr>
         </table>
         </div>

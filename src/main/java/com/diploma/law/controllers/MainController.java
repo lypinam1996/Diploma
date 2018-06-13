@@ -82,9 +82,11 @@ public class MainController {
             problem.setText(problem.getText());
             if(!articles.isEmpty()) {
                 ArrayList<ArrayList<String>> subject = algorithm.getVictimAndSubject(problem.getText(),articles.get(0));
-                List<String> subjects= new ArrayList<>();
-                List<String> victims= new ArrayList<>();
+                List<String> subjects= subject.get(0);
+                List<String> victims= subject.get(1);
                 model.addAttribute("articles", articles);
+                model.addAttribute("subjects", subjects);
+                model.addAttribute("victims", victims);
                 taskService.saveTask(problem);
             }
         }

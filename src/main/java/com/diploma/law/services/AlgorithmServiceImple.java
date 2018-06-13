@@ -87,31 +87,34 @@ public class AlgorithmServiceImple implements AlgorithmService{
     @Override
     public ArrayList<ArrayList<String>> getVictimAndSubject(String text, ArticlesEntity article) {
         ArrayList<ArrayList<String>> subject= new ArrayList<>();
-      try {
+    //  try {
           List<String> sentences = textSegmentation(text);
           ObjectsEntity object = article.getCorpus().getClarifyingfacts().get(0).getObject();
           String mainSentences = findingSentenceWithObject(sentences, object);
-          ArrayList<String[]> syntax = Syntax(mainSentences);
+          //ArrayList<String[]> syntax = Syntax(mainSentences);
           List<String> list = new ArrayList<>();
           list.add(mainSentences);
           ArrayList<String> wordsSentence = getWordsFromText(list);
+          ArrayList<List<WordformsEntity>> wordformsSentence2=getAllWordFormsForNouns(wordsSentence);
+          ArrayList<ArrayList<LemmasEntity>> lemmasSentence = getAllLemmasForNouns(wordformsSentence2);
+
+          Map<LemmasEntity, List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmasSentence,wordsSentence);
           ArrayList<WordformsEntity> wordformsSentence = getAllWordForms(wordsSentence);
-          ArrayList<LemmasEntity> lemmasSentence = getAllLemmas(wordformsSentence);
-          Map<LemmasEntity, List<GrammarsEntity>> grammarsLemmas = findingAllGrammarsLemmas(lemmasSentence);
-          List<LemmasEntity> lemmaNouns = findingAllLemmasWhichAreNouns(grammarsLemmas);
+          /*List<LemmasEntity> lemmaNouns = findingAllLemmasWhichAreNouns(grammarsLemmas);//спрашивать это фио?
           List<LemmasEntity> newNouns = checkNouns(grammarsLemmas, mainSentences, lemmaNouns);
           LemmasEntity lemmaObject = findLemmaWhichIsObject(object, lemmasSentence);
           WordformsEntity wordformsObject = findWordFormWhichIsObject(lemmaObject, wordformsSentence);
           int numberOfVerb = findNumberOfTheWord(syntax, wordformsObject);
+
           List<WordformsEntity> wordformsNouns = findwordformsNouns(newNouns, wordformsSentence);
-          subject = findSubject(lemmaObject, numberOfVerb, syntax, wordformsNouns);
-      }
-      catch (FailedParsingException exc){
+          subject = findSubject(lemmaObject, numberOfVerb, syntax, wordformsNouns);*/
+      //}
+      //catch (FailedParsingException exc){
 
-      }
-      catch (InitRussianParserException exc){
+      //}
+     // catch (InitRussianParserException exc){
 
-      }
+      //}
         return subject;
     }
 
@@ -336,7 +339,6 @@ public class AlgorithmServiceImple implements AlgorithmService{
                 lemmasEntities.add(key);
             }
         }
-
         return lemmasEntities;
     }
 
@@ -358,14 +360,69 @@ public class AlgorithmServiceImple implements AlgorithmService{
         return newLemma;
     }
 
-    private  Map<LemmasEntity,List<GrammarsEntity>> findingAllGrammarsLemmas(ArrayList<LemmasEntity> lemmas) {
+
+    private  Map<LemmasEntity,List<GrammarsEntity>> findingAllGrammarsLemmas(ArrayList<ArrayList<LemmasEntity>> lemmas, ArrayList<String> words) {
         Map<LemmasEntity,List<GrammarsEntity>> listGrammars = new HashMap<>();
-        for (int i = 0; i < lemmas.size(); i++) {
-            List<GrammarsEntity> newGramList = lemmas.get(i).getGrammars();
-            listGrammars.put(lemmas.get(i),newGramList);
+        GrammarsEntity gramName = grammarsService.findById("Name");
+        GrammarsEntity gramSurn = grammarsService.findById("Surn");
+        GrammarsEntity gramPatr = grammarsService.findById("Patr");
+        for (int x = 0; x < lemmas.size(); x++) {
+            ArrayList<LemmasEntity> lemma = lemmas.get(x);
+            int i=0;
+            boolean lemmBool=true;
+            while (lemmBool && (i < lemma.size())) {
+                List<GrammarsEntity> newGramList = lemma.get(i).getGrammars();
+                int j =0;
+                boolean grammBool=true;
+                while (grammBool && j < newGramList.size()) {
+                    if(newGramList.get(j).equals(gramName) ||
+                            newGramList.get(j).equals(gramSurn) ||
+                            newGramList.get(j).equals(gramPatr)) {
+                        if (newGramList.get(j).equals(gramName)) {
+                            ClassNameHere class1 = new ClassNameHere();
+                            boolean result = class1.infoBox(words.get(x) + " - имя человека, описание которого присутствует в данном тексте?", "Вопрос");
+                            if (result) {
+                                listGrammars.put(lemma.get(i), newGramList);
+                                grammBool = false;
+                                lemmBool=false;
+                            }
+                        }
+                        else {
+                            if (newGramList.get(j).equals(gramSurn)) {
+                                ClassNameHere class1 = new ClassNameHere();
+                                boolean result = class1.infoBox(words.get(x) + " - фамилия человека, описание которого присутствует в данном тексте?", "Вопрос");
+                                if (result) {
+                                    listGrammars.put(lemma.get(i), newGramList);
+                                    grammBool = false;
+                                    lemmBool = false;
+                                }
+                            }
+                            else {
+                                if (newGramList.get(j).equals(gramPatr)) {
+                                    ClassNameHere class1 = new ClassNameHere();
+                                    boolean result = class1.infoBox(words.get(x) + " - отчество человека, описание которого присутствует в данном тексте?", "Вопрос");
+                                    if (result) {
+                                        listGrammars.put(lemma.get(i), newGramList);
+                                        grammBool = false;
+                                        lemmBool = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        j++;
+                    }
+                }
+                if(j==newGramList.size()){
+                    listGrammars.put(lemma.get(i), newGramList);
+                }
+                i++;
+            }
         }
         return listGrammars;
     }
+
 
     private  ArrayList<String[]> Syntax(String sentence) throws InitRussianParserException, FailedParsingException {
         RussianParser parser = new RussianParser("/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models/russian-utf8.par","/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models","/home/maria/IdeaProjects/diploma/src/main/java/com/diploma/law/res/models/russian.mco");
@@ -437,6 +494,35 @@ public class AlgorithmServiceImple implements AlgorithmService{
             res.add(result[i]);
         }
         return res;
+    }
+
+    private static ArrayList<ArrayList<LemmasEntity>> getAllLemmasForNouns(ArrayList<List<WordformsEntity>> wordformsEntities) {
+        ArrayList<ArrayList<LemmasEntity>> res = new ArrayList<>();
+        for (int i = 0; i < wordformsEntities.size(); i++) {
+            Set<LemmasEntity> set = new HashSet<>();
+            for (int j = 0; j < wordformsEntities.get(i).size(); j++) {
+                set.add(wordformsEntities.get(i).get(j).getLemma());
+            }
+            LemmasEntity[] result = set.toArray(new LemmasEntity[set.size()]);
+            ArrayList<LemmasEntity> lem = new ArrayList<LemmasEntity>();
+            for (int j = 0; j < result.length; j++) {
+                lem.add(result[j]);
+            }
+            res.add(lem);
+        }
+
+        return res;
+    }
+
+
+
+    private ArrayList<List<WordformsEntity>> getAllWordFormsForNouns(ArrayList<String> words) {
+        ArrayList<List<WordformsEntity>> wordformsEntities = new ArrayList<>();
+        for (int i = 0; i < words.size(); i++) {
+            List<WordformsEntity> list = wordForms.FindByTitle(words.get(i));
+            wordformsEntities.add(list);
+        }
+        return wordformsEntities;
     }
 
     private ArrayList<WordformsEntity> getAllWordForms(ArrayList<String> words) {
