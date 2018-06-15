@@ -100,8 +100,10 @@ public class AlgorithmServiceImple implements AlgorithmService{
           ArrayList<ArrayList<LemmasEntity>> lemmasSentence = getAllLemmasForNouns(wordformsSentence);
           Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> grammsAll = findingAllGrammarsLemmas(lemmasSentence);
           ArrayList<ArrayList<LemmasEntity>> lemmaNouns = findingAllLemmasWhichAreNouns(grammsAll);
-        //  Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> grammarsLemmasNouns = findingAllGrammarsLemmasWhichAreNouns(lemmaNouns,wordsSentence);
-        Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> newNouns = checkNouns(grammsAll, mainSentences);
+        Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> grammLemm = findingAllGrammarsLemmas(lemmaNouns);
+        ArrayList<ArrayList<LemmasEntity>> newNouns = checkNouns(grammLemm, lemmaNouns);
+          Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> grammarsLemmasNouns = findingAllGrammarsLemmasWhichAreNouns(newNouns,wordsSentence);
+
           /*LemmasEntity lemmaObject = findLemmaWhichIsObject(object, lemmasSentence);
           WordformsEntity wordformsObject = findWordFormWhichIsObject(lemmaObject, wordformsSentence);
           int numberOfVerb = findNumberOfTheWord(syntax, wordformsObject);
@@ -348,25 +350,32 @@ public class AlgorithmServiceImple implements AlgorithmService{
         return result;
     }
 
-    private Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> checkNouns (Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> gramm, String sentence){
+    private ArrayList<ArrayList<LemmasEntity>> checkNouns (Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> gramm, ArrayList<ArrayList<LemmasEntity>> lemm){
         GrammarsEntity init = grammarsService.findById("Init");
         GrammarsEntity abbr = grammarsService.findById("Abbr");
-        Set<Integer> intg = gramm.keySet();
-        for (Integer intgs : intg) {
-            Map<LemmasEntity,List<GrammarsEntity>> map = gramm.get(intgs);
-            if(!map.isEmpty()){
-                Set<LemmasEntity> key = map.keySet();
-                for (LemmasEntity keys : key) {
-                    List<GrammarsEntity> grammars = map.get(keys);
-                    if (grammars.contains(init) || grammars.contains(abbr)) {
-                        if (sentence.indexOf(keys.getTitle() + ".") < 0) {
-                            gramm.remove(map);
+        ArrayList<ArrayList<LemmasEntity>> newLemm = new ArrayList<>();
+        for(int i=0;i<lemm.size();i++){
+            ArrayList<LemmasEntity> res = new ArrayList<>();
+            for(int j=0;j<lemm.get(i).size();j++) {
+                Set<Integer> intg = gramm.keySet();
+                for (Integer intgs : intg) {
+                    Map<LemmasEntity, List<GrammarsEntity>> map = gramm.get(intgs);
+                    if (!map.isEmpty()) {
+                        Set<LemmasEntity> lemmasEntities = map.keySet();
+                        if (lemmasEntities.contains(lemm.get(i).get(j))) {
+                            for (LemmasEntity lemms : lemmasEntities) {
+                                List<GrammarsEntity> grammars = map.get(lemms);
+                                if (!grammars.contains(init) && !grammars.contains(abbr)) {
+                                    res.add(lemm.get(i).get(j));
+                                }
+                            }
                         }
                     }
                 }
             }
+            newLemm.add(res);
         }
-        return gramm;
+        return newLemm;
     }
 
     private  Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> findingAllGrammarsLemmasWhichAreNouns(ArrayList<ArrayList<LemmasEntity>> lemmas, ArrayList<String> words) {
