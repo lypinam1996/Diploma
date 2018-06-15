@@ -88,236 +88,193 @@ public class AlgorithmServiceImple implements AlgorithmService{
     @Override
     public ArrayList<ArrayList<String>> getVictimAndSubject(String text, ArticlesEntity article) {
         ArrayList<ArrayList<String>> subject= new ArrayList<>();
-    //  try {
-          List<String> sentences = textSegmentation(text);
-          ObjectsEntity object = article.getCorpus().getClarifyingfacts().get(0).getObject();
-          String mainSentences = findingSentenceWithObject(sentences, object);
-          //ArrayList<String[]> syntax = Syntax(mainSentences);
-          List<String> list = new ArrayList<>();
-          list.add(mainSentences);
-          ArrayList<String> wordsSentence = getWordsFromText(list);
-          ArrayList<List<WordformsEntity>> wordformsSentence=getAllWordFormsForNouns(wordsSentence);
-          ArrayList<ArrayList<LemmasEntity>> lemmasSentence = getAllLemmasForNouns(wordformsSentence);
-          Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> grammsAll = findingAllGrammarsLemmas(lemmasSentence);
-          ArrayList<ArrayList<LemmasEntity>> lemmaNouns = findingAllLemmasWhichAreNouns(grammsAll);
-        Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> grammLemm = findingAllGrammarsLemmas(lemmaNouns);
-        ArrayList<ArrayList<LemmasEntity>> newNouns = checkNouns(grammLemm, lemmaNouns);
-          Map<Integer,Map<LemmasEntity,List<GrammarsEntity>>> grammarsLemmasNouns = findingAllGrammarsLemmasWhichAreNouns(newNouns,wordsSentence);
+        try {
+            List<String> sentences = textSegmentation(text);
+            ObjectsEntity object = article.getCorpus().getClarifyingfacts().get(0).getObject();
+            String mainSentences = findingSentenceWithObject(sentences, object);
+            ArrayList<String[]> syntax = Syntax(mainSentences);
+            List<String> list = new ArrayList<>();
+            list.add(mainSentences);
+            ArrayList<String> wordsSentence = getWordsFromText(list);
+            ArrayList<List<WordformsEntity>> wordformsSentence = getAllWordFormsForNouns(wordsSentence);
+            ArrayList<ArrayList<LemmasEntity>> lemmasSentence = getAllLemmasForNouns(wordformsSentence);
+            Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammsAll = findingAllGrammarsLemmas(lemmasSentence);
+            ArrayList<ArrayList<LemmasEntity>> lemmaNouns = findingAllLemmasWhichAreNouns(grammsAll);
+            Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammLemm = findingAllGrammarsLemmas(lemmaNouns);
+            ArrayList<ArrayList<LemmasEntity>> newNouns = checkNouns(grammLemm, lemmaNouns);
+            Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns1 = findingAllGrammarsLemmasWhichAreNouns(newNouns, wordsSentence);
+            Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns = delete(grammarsLemmasNouns1);
+            int  numberOfVerb = findLemmaWhichIsObject(object, lemmasSentence);
+            subject = findSubject(numberOfVerb, syntax, wordsSentence, grammarsLemmasNouns);
+            System.out.println("!");
 
-          /*LemmasEntity lemmaObject = findLemmaWhichIsObject(object, lemmasSentence);
-          WordformsEntity wordformsObject = findWordFormWhichIsObject(lemmaObject, wordformsSentence);
-          int numberOfVerb = findNumberOfTheWord(syntax, wordformsObject);
+        }
+      catch (FailedParsingException exc) {
+      }
+      catch (InitRussianParserException exc){
 
-          List<WordformsEntity> wordformsNouns = findwordformsNouns(newNouns, wordformsSentence);
-          subject = findSubject(lemmaObject, numberOfVerb, syntax, wordformsNouns);*/
-      //}
-      //catch (FailedParsingException exc){
-
-      //}
-     // catch (InitRussianParserException exc){
-
-      //}
+      }
         return subject;
     }
 
-    private ArrayList<ArrayList<String>> findSubject (LemmasEntity lemmaVerb,int verb, ArrayList<String[]>
-        syntax, List < WordformsEntity > newNouns){
-        List<String> res = new ArrayList<>();
-        ArrayList<Integer> numbers = new ArrayList<>();
-        ArrayList<String[]> nouns = new ArrayList<>();
-        for (int i = 0; i < newNouns.size(); i++) {
-            numbers.add(findNumberOfTheWord(syntax, newNouns.get(i)));
-        }
-        for (int i = 0; i < numbers.size(); i++) {
-            nouns.add(syntax.get(numbers.get(i)));
-        }
-        String[] verbSyntax = syntax.get(verb);
-        if(verbSyntax[7].equals("ROOT") || verbSyntax[7].equals("сент-соч") || verbSyntax[7].equals("соч-союзн")) {
-            res=formList(nouns,true);
+    private ArrayList<ArrayList<String>> findSubject (int numberOfVerb, ArrayList<String[]> syntax,
+                                                      ArrayList<String> wordsSentence,
+                                                      Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns){
+        List<Integer> res = new ArrayList<>();
+        String[] verbSyntax = syntax.get(numberOfVerb);
+        ArrayList<String[]> nouns = getNouns(grammarsLemmasNouns,syntax);
+        if(verbSyntax[7].equals("ROOT") || verbSyntax[7].equals("сент-соч") || verbSyntax[7].equals("соч-союзн") || verbSyntax[7].equals("подч-союзн")) {
+            res=formList(nouns,true,grammarsLemmasNouns);
         }
         if(verbSyntax[7].equals("пасс-анал")){
-            res=formList(nouns,false);
+            res=formList(nouns,false,grammarsLemmasNouns);
         }
-        ArrayList<ArrayList<String>> result = subjectVictims(res);
-
-        result=getFirstForm(result);
-        result=deleteSimilar(result);
+        ArrayList<ArrayList<String>> result = subjectVictims(res,grammarsLemmasNouns);
         return result;
     }
 
-    private ArrayList<ArrayList<String>> subjectVictims(List<String> list) {
+
+    private ArrayList<ArrayList<String>> subjectVictims(List<Integer> list, Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns) {
         ArrayList<ArrayList<String>> res = new ArrayList<>();
         ArrayList<String> subjects = new ArrayList<>();
         ArrayList<String> victims = new ArrayList<>();
-        if (list.contains("subject")) {
-            int index = list.indexOf("subject");
-            for (int i = index + 1; i < list.size(); i++) {
-                subjects.add(list.get(i));
-            }
-            for (int i = 0; i < index; i++) {
-                victims.add(list.get(i));
-            }
+        if (list.contains(-1)) {
+            subjects=getSubj(list,grammarsLemmasNouns,-1);
+            victims=getVict(list,grammarsLemmasNouns,-1);
         } else {
-            int index = list.indexOf("victims");
-            for (int i = index + 1; i < list.size(); i++) {
-                victims.add(list.get(i));
-            }
-            for (int i = 0; i < index; i++) {
-                subjects.add(list.get(i));
-            }
+            victims = getSubj(list, grammarsLemmasNouns, -2);
+            subjects = getVict(list, grammarsLemmasNouns, -2);
         }
         res.add(subjects);
         res.add(victims);
         return res;
     }
 
-    private ArrayList<ArrayList<String>> getFirstForm(ArrayList<ArrayList<String>> list){
-        ArrayList<ArrayList<String>> res = new ArrayList<>();
-        ArrayList<String> subjects = list.get(0);
-        ArrayList<String> victims = list.get(1);
-        subjects=findFirst(subjects, "subjects");
-        victims=findFirst(victims,"victims");
-        res.add(subjects);
-        res.add(victims);
-        return res;
-    }
-
-    private ArrayList<String> findFirst(ArrayList<String> subjects, String title){
-        GrammarsEntity gramIm = grammarsService.findById("nomn");
-        ArrayList<WordformsEntity> wordformsSubject = getAllWordForms(subjects);
-        int x=0;
-        subjects.clear();
-        boolean ok = true;
-        while(x<wordformsSubject.size() && ok  ){
-            int y =0;
-            List<GrammarsEntity> grammars = wordformsSubject.get(x).getGrammars();
-            while (y<grammars.size() && ok  ){
-                if (grammars.get(y).equals(gramIm)) {
-                    if(title.equals("subjects")) {
-                        subjects.add("Преступление совершил: "+wordformsSubject.get(x).getTitle());
-                        ok = false;
+    private ArrayList<String> getSubj(List<Integer> list,
+                                      Map<Integer,Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns,
+                                      int number) {
+        ArrayList<String> subjects = new ArrayList<>();
+        int index = list.indexOf(number);
+        for (int i = 0; i < index; i++)  {
+            Collection<Integer> numbers = grammarsLemmasNouns.keySet();
+            for (Integer key : numbers) {
+                if (list.get(i).equals(key+1)) {
+                    Map<LemmasEntity, List<GrammarsEntity>> map = grammarsLemmasNouns.get(key);
+                    Collection<LemmasEntity> title = map.keySet();
+                    for (LemmasEntity key2 : title) {
+                        subjects.add(key2.getTitle());
                     }
-                    else{
-                        subjects.add("Пострадавшим является: "+wordformsSubject.get(x).getTitle());
-                        ok = false;
-                    }
-                }
-                else{
-                    y++;
-                }
-            }
-            x++;
-        }
-        if(ok) {
-            for (int i = 0; i < wordformsSubject.size(); i++) {
-                if(title.equals("subjects")) {
-                    subjects.add("Преступления было совершено: "+wordformsSubject.get(i).getTitle());
-                }
-                else{
-                    subjects.add("Противоправные действия, затронули: "+wordformsSubject.get(i).getTitle());
                 }
             }
         }
         return subjects;
     }
 
-
-    private ArrayList<ArrayList<String>> deleteSimilar(ArrayList<ArrayList<String>> list) {
-       ArrayList<ArrayList<String>> res = new ArrayList<>();
-       ArrayList<String> subjects = list.get(0);
-       ArrayList<String> victims = list.get(1);
-        for (int i = 0; i < subjects.size(); i++) {
-            for (int j = i+1; j < subjects.size(); j++) {
-                if (subjects.get(i).equals(subjects.get(j))){
-                    subjects.remove(j);
+    private ArrayList<String> getVict(List<Integer> list,
+                                      Map<Integer,Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns,int number) {
+        ArrayList<String> victims = new ArrayList<>();
+        int index = list.indexOf(number);
+        for (int i = index + 1; i < list.size(); i++) {
+            Collection<Integer> numbers = grammarsLemmasNouns.keySet();
+            for (Integer key : numbers) {
+                if (list.get(i).equals(key+1)) {
+                    Map<LemmasEntity, List<GrammarsEntity>> map = grammarsLemmasNouns.get(key);
+                    Collection<LemmasEntity> title = map.keySet();
+                    for (LemmasEntity key2 : title) {
+                        victims.add(key2.getTitle());
+                    }
                 }
             }
         }
-        int count =victims.size();
-        for (int i = 0; i < count; i++) {
-            for (int j = i+1; j < count; j++) {
-                if (victims.get(i).equals(victims.get(j))){
-                    victims.remove(j);
-                    i--;
-                    count--;
-                }
-            }
-        }
-        res.add(subjects);
-        res.add(victims);
-        return res;
+        return victims;
     }
 
 
-    private List<String> formList(ArrayList<String[]> nouns, boolean ok){
-        List<String> res = new ArrayList<>();
-        ArrayList<String[]> subject = getNoun(nouns, "предик");
-        for (int i = 0; i < subject.size(); i++) {
-            res.add(subject.get(i)[1]);
-            nouns.remove(subject.get(i));
+    private List<Integer> formList( ArrayList<String[]> nouns, boolean ok,
+                                    Map<Integer,Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns){
+        List<Integer> res = new ArrayList<>();
+        ArrayList<String[]> pred = getPred(nouns);
+        for (int i = 0; i < pred.size(); i++) {
+            int predInt=Integer.parseInt(pred.get(i)[0]);
+            res.add(predInt);
+            List<Integer> help= helpFormList(nouns,predInt,grammarsLemmasNouns);
+            res.addAll(help);
+            for (int j = 0; j < res.size(); j++) {
+                for (int x = 0; x < res.size(); x++) {
+                    String[] synt = nouns.get(x);
+                    if (Integer.parseInt(synt[0]) == res.get(j)){
+                        nouns.remove(synt);
+                    }
+                }
+            }
         }
         if(ok==true) {
-            res.add("victims");
+            res.add(-1);
         }
         else {
-            res.add("subject");
+            res.add(-2);
         }
         for (int i = 0; i < nouns.size(); i++) {
-            res.add(nouns.get(i)[1]);
+            int predInt2=Integer.parseInt(nouns.get(i)[0]);
+            res.add(predInt2);
         }
         return res;
     }
 
-    private ArrayList<String[]> getNoun(ArrayList<String[]> nouns,String title){
-        ArrayList<String[]> res = new ArrayList<>();
-        for (int i = 0; i < nouns.size(); i++) {
-            if(nouns.get(i)[7].equals(title)){
-                res.add(nouns.get(i));
-            }
-        }
-        return res;
-    }
+    private List<Integer> helpFormList(ArrayList<String[]> nouns, int predInt,
+                                       Map<Integer,Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns){
+        List<Integer> res = new ArrayList<>();
+        GrammarsEntity gramName = grammarsService.findById("Name");
+        GrammarsEntity gramSurn = grammarsService.findById("Surn");
+        GrammarsEntity gramPatr = grammarsService.findById("Patr");
+        Collection<Integer> numbers = grammarsLemmasNouns.keySet();
+        for (Integer key : numbers) {
+            if(key==predInt-2 || key==predInt){
+                Map<LemmasEntity, List<GrammarsEntity>> map = grammarsLemmasNouns.get(key);
+                Collection<LemmasEntity> title = map.keySet();
+                for (LemmasEntity key2 : title) {
+                    List<GrammarsEntity>  gramms = key2.getGrammars();
+                    if(gramms.contains(gramName) || gramms.contains(gramSurn) || gramms.contains(gramPatr)){
+                            res.add(key + 1);
 
-    private List<WordformsEntity> findwordformsNouns
-            (List < LemmasEntity > lemmas, List < WordformsEntity > wordformsNouns){
-        List<WordformsEntity> wordforms = new ArrayList<>();
-        for (int i = 0; i < lemmas.size(); i++) {
-            wordforms.add(findWordFormWhichIsObject(lemmas.get(i), wordformsNouns));
-        }
-        return wordforms;
-    }
-
-    private int findNumberOfTheWord (ArrayList < String[]>syntax, WordformsEntity object){
-        int verb = -1;
-        for (int i = 0; i < syntax.size(); i++) {
-            if (syntax.get(i)[1].equals(object.getTitle())) {
-                verb = i;
-            }
-        }
-        return verb;
-    }
-
-    private WordformsEntity findWordFormWhichIsObject (LemmasEntity
-                                                               object, List < WordformsEntity > wordformsSentence){
-        WordformsEntity res = new WordformsEntity();
-        List<WordformsEntity> wordforms = object.getWordforms();
-        for (int i = 0; i < wordforms.size(); i++) {
-            for (int j = 0; j < wordformsSentence.size(); j++) {
-                if (wordformsSentence.get(j).getTitle().equals(wordforms.get(i).getTitle())) {
-                    res = wordforms.get(i);
+                    }
                 }
             }
         }
         return res;
     }
 
-    private LemmasEntity findLemmaWhichIsObject (ObjectsEntity object, ArrayList < LemmasEntity > lemmas){
-        LemmasEntity res = new LemmasEntity();
+    private ArrayList<String[]> getPred (ArrayList<String[]> nouns){
+        ArrayList<String[]> subject = new ArrayList<>();
+        for (int i = 0; i < nouns.size(); i++) {
+            if(nouns.get(i)[7].equals("предик")){
+                subject.add(nouns.get(i));
+            }
+        }
+        return subject;
+    }
+
+    private ArrayList<String[]> getNouns(Map<Integer,Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns,
+                                        ArrayList<String[]> syntax){
+        Set<Integer> numbers = grammarsLemmasNouns.keySet();
+        Integer[] numb=numbers.toArray(new Integer[numbers.size()]);
+        ArrayList<String[]> res = new ArrayList<>();
+        for (int i = 0; i < numb.length; i++) {
+            res.add(syntax.get(numb[i]));
+        }
+        return res;
+    }
+
+    private int findLemmaWhichIsObject (ObjectsEntity object, ArrayList<ArrayList<LemmasEntity>> lemmasList){
+        int res= -1;
         List<LemmasEntity> lemmasObject = object.getLemmas();
-        for (int i = 0; i < lemmas.size(); i++) {
-            for (int j = 0; j < lemmasObject.size(); j++) {
-                if (lemmas.get(i).getTitle().equals(lemmasObject.get(j).getTitle())) {
-                    res = lemmas.get(i);
+        for (int x = 0; x < lemmasList.size(); x++) {
+            ArrayList<LemmasEntity> lemmas=lemmasList.get(x);
+            for (int i = 0; i < lemmas.size(); i++) {
+                for (int j = 0; j < lemmasObject.size(); j++) {
+                    if (lemmas.get(i).getTitle().equals(lemmasObject.get(j).getTitle())) {
+                        res = x;
+                    }
                 }
             }
         }
@@ -679,5 +636,16 @@ public class AlgorithmServiceImple implements AlgorithmService{
             }
         }
         return res;
+    }
+
+    private Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>>  delete(Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns){
+        Collection<Integer> collection = grammarsLemmasNouns.keySet();
+        for (Integer key : collection) {
+            Map<LemmasEntity, List<GrammarsEntity>> map = grammarsLemmasNouns.get(key);
+            if(map.isEmpty()){
+                grammarsLemmasNouns.remove(map);
+            }
+        }
+        return grammarsLemmasNouns;
     }
 }
