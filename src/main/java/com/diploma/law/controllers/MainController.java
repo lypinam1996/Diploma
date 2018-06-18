@@ -84,6 +84,14 @@ public class MainController {
                 ArrayList<ArrayList<String>> subject = algorithm.getVictimAndSubject(problem.getText(),articles.get(0));
                 List<String> subjects= subject.get(0);
                 List<String> victims= subject.get(1);
+                subjects=question(subjects," субъект");
+                victims=question(victims," потерпевший");
+                if(subjects.isEmpty()){
+                    subjects.add("Не определён");
+                }
+                if(victims.isEmpty()){
+                    victims.add("Не определён");
+                }
                 model.addAttribute("articles", articles);
                 model.addAttribute("subjects", subjects);
                 model.addAttribute("victims", victims);
@@ -93,6 +101,20 @@ public class MainController {
         return "problem";
     }
 
+    private List<String> question( List<String> subjects,String title){
+        int i=0;
+        while (!subjects.isEmpty() && i<subjects.size()){
+            ClassNameHere class1 = new ClassNameHere();
+            boolean result = class1.infoBox(subjects.get(i) + title+" преступления?", "Вопрос");
+            if(result==false){
+                subjects.remove(i);
+            }
+            else{
+                i++;
+            }
+        }
+        return subjects;
+    }
 
     @RequestMapping(value = "/{id}/seeProblem", method = RequestMethod.GET)
     public ModelAndView seeProblem(@PathVariable int id){

@@ -106,7 +106,6 @@ public class AlgorithmServiceImple implements AlgorithmService{
             Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns = delete(grammarsLemmasNouns1);
             int  numberOfVerb = findLemmaWhichIsObject(object, lemmasSentence);
             subject = findSubject(numberOfVerb, syntax, wordsSentence, grammarsLemmasNouns);
-            System.out.println("!");
 
         }
       catch (FailedParsingException exc) {
@@ -155,10 +154,36 @@ public class AlgorithmServiceImple implements AlgorithmService{
                                       int number) {
         ArrayList<String> subjects = new ArrayList<>();
         int index = list.indexOf(number);
-        for (int i = 0; i < index; i++)  {
+        for (int i = 0; i < index; i++) {
+            subjects=helpSubjVict(list,grammarsLemmasNouns,subjects,i);
+        }
+        return subjects;
+    }
+
+    private ArrayList<String> helpSubjVict(List<Integer> list,
+                         Map<Integer,Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns,
+                         ArrayList<String> subjects,int i){
+        if (list.get(i) == -11) {
+            int t = subjects.indexOf(subjects.get(subjects.size()-1));
+            String title2 = subjects.remove(t);
+            title2=title2.substring(0, 1).toUpperCase() + title2.substring(1);
+            title2 =   subjects.remove(t-1)+ " "+title2;
+            title2=title2.substring(0, 1).toUpperCase() + title2.substring(1);
+            subjects.add(title2);
+        } else {
+            if(list.get(i)==-22) {
+                int t = subjects.indexOf(subjects.get(subjects.size()-1));
+                String title3 = subjects.remove(t);
+                title3=title3.substring(0, 1).toUpperCase() + title3.substring(1);
+                title3 =  subjects.remove(t-1)+ " "+title3;
+                title3=title3.substring(0, 1).toUpperCase() + title3.substring(1);
+                title3= subjects.remove(t-2)+ " "+title3;
+                title3=title3.substring(0, 1).toUpperCase() + title3.substring(1);
+                subjects.add(title3);
+            }
             Collection<Integer> numbers = grammarsLemmasNouns.keySet();
             for (Integer key : numbers) {
-                if (list.get(i).equals(key+1)) {
+                if (list.get(i).equals(key + 1)) {
                     Map<LemmasEntity, List<GrammarsEntity>> map = grammarsLemmasNouns.get(key);
                     Collection<LemmasEntity> title = map.keySet();
                     for (LemmasEntity key2 : title) {
@@ -175,16 +200,7 @@ public class AlgorithmServiceImple implements AlgorithmService{
         ArrayList<String> victims = new ArrayList<>();
         int index = list.indexOf(number);
         for (int i = index + 1; i < list.size(); i++) {
-            Collection<Integer> numbers = grammarsLemmasNouns.keySet();
-            for (Integer key : numbers) {
-                if (list.get(i).equals(key+1)) {
-                    Map<LemmasEntity, List<GrammarsEntity>> map = grammarsLemmasNouns.get(key);
-                    Collection<LemmasEntity> title = map.keySet();
-                    for (LemmasEntity key2 : title) {
-                        victims.add(key2.getTitle());
-                    }
-                }
-            }
+            victims=helpSubjVict(list,grammarsLemmasNouns,victims,i);
         }
         return victims;
     }
@@ -200,10 +216,12 @@ public class AlgorithmServiceImple implements AlgorithmService{
             List<Integer> help= helpFormList(nouns,predInt,grammarsLemmasNouns);
             res.addAll(help);
             for (int j = 0; j < res.size(); j++) {
-                for (int x = 0; x < res.size(); x++) {
-                    String[] synt = nouns.get(x);
-                    if (Integer.parseInt(synt[0]) == res.get(j)){
-                        nouns.remove(synt);
+                for (int x = 0; x < nouns.size(); x++) {
+                    if(!nouns.isEmpty() && res.get(i)>0) {
+                        String[] synt = nouns.get(x);
+                        if (Integer.parseInt(synt[0]) == res.get(j)) {
+                            nouns.remove(synt);
+                        }
                     }
                 }
             }
@@ -214,9 +232,16 @@ public class AlgorithmServiceImple implements AlgorithmService{
         else {
             res.add(-2);
         }
-        for (int i = 0; i < nouns.size(); i++) {
-            int predInt2=Integer.parseInt(nouns.get(i)[0]);
-            res.add(predInt2);
+        if(!nouns.isEmpty()) {
+            int predInt2 = -1;
+            if (nouns.size() > 2) {
+                predInt2 = Integer.parseInt(nouns.get(2)[0]);
+                res.add(predInt2);
+                res.addAll(helpFormList(nouns, predInt2, grammarsLemmasNouns));
+            } else {
+                predInt2 = Integer.parseInt(nouns.get(0)[0]);
+                res.add(predInt2);
+            }
         }
         return res;
     }
@@ -239,6 +264,14 @@ public class AlgorithmServiceImple implements AlgorithmService{
 
                     }
                 }
+            }
+        }
+        if(res.size()==1){
+            res.add(-11);
+        }
+        else {
+            if (res.size() == 2) {
+                res.add(-22);
             }
         }
         return res;
@@ -293,12 +326,19 @@ public class AlgorithmServiceImple implements AlgorithmService{
                 LemmasEntity keyLemm = keys.get(i);
                 List<GrammarsEntity> gram = map.get(keyLemm);
                 k = 0;
+                int count=0;
                 for (int j = 0; j < gram.size(); j++) {
                     if (gram.get(j).getIdGrammar().equals("NOUN") || gram.get(j).getIdGrammar().equals("anim")) {
                         k++;
                     }
+                    else{
+                        if(gram.get(j).getIdGrammar().equals("Anum") || gram.get(j).getIdGrammar().equals("Apro")
+                                || gram.get(j).getIdGrammar().equals("NPRO") || gram.get(j).getIdGrammar().equals("NUMR")){
+                            count++;
+                        }
+                    }
                 }
-                if (k == 2) {
+                if (k == 2 || count>0) {
                     res.add(keyLemm);
                 }
             }

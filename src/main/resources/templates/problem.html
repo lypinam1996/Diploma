@@ -6,8 +6,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
 </head>
 <body>
+<div id="spinner" class="spinner" style="display:none;">
+    <img id="img-spinner" th:src="@{/img/loader.gif}" alt="Loading"/>
+</div>
+
 <div class="container" >
     <form th:action="@{/logout}" method="post">
         <button class="btn btn-md btn-warning btn-block" type="submit">Выйти</button>
@@ -31,7 +36,7 @@
                 </div>
                 <div class="form-group">
                     <div >
-                        <button type="submit" class="btn btn-primary btn-block">Решить</button>
+                        <button type="submit" class="btn btn-primary btn-block button-upload">Решить</button>
                     </div>
                 </div>
 
@@ -49,10 +54,10 @@
             <tr> <td>Содержание</td> <td th:text="${a.text}"></td></tr>
             </tr>
             <tr th:each="s : ${subjects}">
-            <tr>  <td></td><td th:text=" ${s}"></td></tr>
+            <tr>  <td>Субъект преступления</td><td th:text=" ${s}"></td></tr>
             </tr>
             <tr th:each="v : ${victims}">
-            <tr><td></td> <td th:text=" ${v}"></td></tr>
+            <tr><td>Объект преступления</td> <td th:text=" ${v}"></td></tr>
             </tr>
         </table>
         </div>
@@ -62,5 +67,12 @@
         <button class="btn btn-md btn-warning btn-block">На главную</button>
     </form>
 </div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#button-upload').click(function() {
+            $('#spinner').show();
+        });
+    });
+</script>
 </body>
 </html>
