@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:pages="http://pagesdialect.sourceforge.net">
 <head>
-    <title>Delete</title>
+    <title>Admin</title>
     <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </head>
 <body>
-
-<div class="container">
-<form th:action="@{/logout}" method="post">
-    <button class="btn btn-md btn-warning btn-block" type="submit">Выйти</button>
-</form>
-<div class="container text-center" style="font-size: 20pt;margin-bottom: 100px;margin-top: 100px">
-    Удаление прошло успешно!
-</div>
-    <a th:href="@{'/home'}" class="btn btn-md btn-warning btn-block">На главную</a>
+<div class="wrapper">
+    <div class="container " style="margin-top: 50px" >
+        <h2 align="center">  Личный кабинет администратора   </h2>
+    </div>
+    <div>
+        <form th:action="@{/articles}" method="get" style="margin-top: 20px">
+            <button class="btn btn-md btn-warning btn-block" type="Submit">Статьи</button>
+        </form>
+        <form th:action="@{/logout}" method="post">
+            <button class="btn btn-md btn-warning btn-block" type="submit">Выйти</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>

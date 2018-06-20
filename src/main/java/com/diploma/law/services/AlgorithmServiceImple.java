@@ -105,8 +105,7 @@ public class AlgorithmServiceImple implements AlgorithmService{
             Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns1 = findingAllGrammarsLemmasWhichAreNouns(newNouns, wordsSentence);
             Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns = delete(grammarsLemmasNouns1);
             int  numberOfVerb = findLemmaWhichIsObject(object, lemmasSentence);
-            subject = findSubject(numberOfVerb, syntax, wordsSentence, grammarsLemmasNouns);
-
+            subject = findSubject(numberOfVerb, syntax, grammarsLemmasNouns);
         }
       catch (FailedParsingException exc) {
       }
@@ -117,7 +116,6 @@ public class AlgorithmServiceImple implements AlgorithmService{
     }
 
     private ArrayList<ArrayList<String>> findSubject (int numberOfVerb, ArrayList<String[]> syntax,
-                                                      ArrayList<String> wordsSentence,
                                                       Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns){
         List<Integer> res = new ArrayList<>();
         String[] verbSyntax = syntax.get(numberOfVerb);
@@ -131,6 +129,7 @@ public class AlgorithmServiceImple implements AlgorithmService{
         ArrayList<ArrayList<String>> result = subjectVictims(res,grammarsLemmasNouns);
         return result;
     }
+
 
 
     private ArrayList<ArrayList<String>> subjectVictims(List<Integer> list, Map<Integer, Map<LemmasEntity, List<GrammarsEntity>>> grammarsLemmasNouns) {
@@ -175,8 +174,10 @@ public class AlgorithmServiceImple implements AlgorithmService{
                 int t = subjects.indexOf(subjects.get(subjects.size()-1));
                 String title3 = subjects.remove(t);
                 title3=title3.substring(0, 1).toUpperCase() + title3.substring(1);
+
                 title3 =  subjects.remove(t-1)+ " "+title3;
                 title3=title3.substring(0, 1).toUpperCase() + title3.substring(1);
+
                 title3= subjects.remove(t-2)+ " "+title3;
                 title3=title3.substring(0, 1).toUpperCase() + title3.substring(1);
                 subjects.add(title3);

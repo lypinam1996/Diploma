@@ -16,7 +16,8 @@ public class ProblemsEntity {
     private String text;
     private List<ArticlesEntity> article;
     private UsersEntity usersByUser;
-
+    private String subject;
+    private String victims;
 
     @LazyCollection(LazyCollectionOption.FALSE)
     @ManyToMany(cascade = CascadeType.ALL)
@@ -99,5 +100,25 @@ public class ProblemsEntity {
     public int hashCode() {
 
         return Objects.hash(idProblem, title, number, text);
+    }
+
+    @Basic
+    @Column(name = "subject")
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    @Basic
+    @Column(name = "victims")
+    public String getVictims() {
+        return victims;
+    }
+
+    public void setVictims(String victims) {
+        this.victims = victims;
     }
 }

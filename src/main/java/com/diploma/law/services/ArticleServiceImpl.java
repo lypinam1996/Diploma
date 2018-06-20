@@ -28,4 +28,14 @@ public class ArticleServiceImpl implements ArticleService{
     public List<ArticlesEntity> findAllArticles() {
         return article.findAllArticles();
     }
+
+    @Override
+    public void deleteTask(int id){
+        article.deleteTask(id);
+    }
+
+    @Override
+    public void saveArticle(ArticlesEntity articlesEntity) {
+        article.saveArticle(articlesEntity);
+    }
 }

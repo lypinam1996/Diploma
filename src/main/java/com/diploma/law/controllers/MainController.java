@@ -57,9 +57,17 @@ public class MainController {
         List<ProblemsEntity> tasks;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UsersEntity user = userService.FindByLogin(auth.getName());
-        tasks = taskService.findTasks(user);
-        model.addAttribute("tasks",tasks);
-        return "mainPage";
+        String page="";
+        if(user.getIdUser()==1){
+             page = "adminMainPage";
+        }
+        else{
+            tasks = taskService.findTasks(user);
+            model.addAttribute("tasks",tasks);
+             page = "mainPage";
+        }
+
+        return page;
     }
 
     @RequestMapping(value = "/problem", method = RequestMethod.GET)
@@ -95,6 +103,8 @@ public class MainController {
                 model.addAttribute("articles", articles);
                 model.addAttribute("subjects", subjects);
                 model.addAttribute("victims", victims);
+                problem.setSubject(subjects.get(0));
+                problem.setVictims(victims.get(0));
                 taskService.saveTask(problem);
             }
         }
@@ -126,7 +136,6 @@ public class MainController {
         model.setViewName("seeProblem");
         return model;
     }
-
 
     @RequestMapping(value = "/{id}/deleteProblem", method = RequestMethod.GET)
     public ModelAndView deleteProblem(@PathVariable int id){

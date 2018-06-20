@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit article</title>
+    <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+<body>
+<form th:action="@{/home}" method="get">
+    <button class="btn btn-md btn-warning btn-block" type="submit">На главную</button>
+</form>
+<form th:action="@{/articles}" method="get">
+    <button class="btn btn-md btn-warning btn-block" type="submit">Статьи</button>
+</form>
+<form th:action="@{/logout}" method="post">
+    <button class="btn btn-md btn-warning btn-block" type="submit">Выход</button>
+</form>
+<div class="container " style="margin-top: 50px">
+    <h3 align="center">Статья</h3>
+    <span th:utext="${successMessage}"></span>
+    <form autocomplete="off" th:action="@{/editArticle}"
+          th:object="${article}" method="post" class="form-horizontal"
+          role="form">
+        <div class="form-group">
+            <input type="hidden" th:field="*{idArticle}" placeholder="Номер статьи"
+                   class="form-control"/>
+        </div>
+        <div class="form-group">
+            <input type="text" th:field="*{number}" placeholder="Номер статьи"
+                   class="form-control"/>
+        </div>
+        <div class="form-group">
+            <input type="text" th:field="*{section}"
+                   placeholder="Глава кодекса" class="form-control"  />
+        </div>
+        <div class="form-group">
+            <input type="text" th:field="*{title}"
+                   placeholder="Название" class="form-control"  />
+        </div>
+        <div class="form-group">
+            <input type="text" th:field="*{text}" placeholder="Детальная информация"
+                   class="form-control"/>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block">Редактировать</button>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

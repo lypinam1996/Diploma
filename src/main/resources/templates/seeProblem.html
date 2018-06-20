@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:pages="http://pagesdialect.sourceforge.net">
 <head>
-    <title>MainPage</title>
+    <title>See</title>
     <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
@@ -18,6 +18,8 @@
         <tr th:each="t : ${task}">
         <tr> <td>Краткая информация по делу</td><td th:text="${t.title}">&nbsp;</td></tr>
         <tr> <td>Текст дела</td><td th:text="${t.text}">&nbsp;</td></tr>
+        <tr> <td>Субъект</td> <td th:text="${t.subject}"></td></tr>
+        <tr> <td>Потерпевший</td> <td th:text="${t.victims}"></td></tr>
         </tr>
         <tr th:each="a : ${articles}">
         <tr> <td>Статья</td> <td th:text=" ${a.number}"></td></tr>

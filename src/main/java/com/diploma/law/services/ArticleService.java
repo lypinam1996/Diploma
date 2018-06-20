@@ -6,4 +6,6 @@ public interface ArticleService {
     ArticlesEntity findById(int id);
     ArticlesEntity FindByTitle(String title);
     List<ArticlesEntity> findAllArticles();
+    void deleteTask(int id);
+    void saveArticle(ArticlesEntity articlesEntity);
 }
