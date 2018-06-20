@@ -57,6 +57,7 @@ public class LemmasEntity {
         this.objects = objects;
     }
 
+
     @OneToMany(mappedBy = "lemma")
     public List<ClarifyingFactsEntity> getClarifyingfacts() {
         return clarifyingfacts;

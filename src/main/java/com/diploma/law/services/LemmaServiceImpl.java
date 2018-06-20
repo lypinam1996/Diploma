@@ -4,6 +4,7 @@ import com.diploma.law.models.LemmasEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Set;
 
 @Service("LemmaService")
@@ -25,7 +26,7 @@ public class LemmaServiceImpl implements LemmaService{
 
     @Override
 
-    public Set<LemmasEntity> findAllLemmas() {
+    public List<LemmasEntity> findAllLemmas() {
         return lemma.findAllLemmas();
     }
 }

@@ -6,4 +6,6 @@ public interface ObjectService {
     ObjectsEntity findById(int id);
     ObjectsEntity FindByTitle(String title);
     List<ObjectsEntity> findAllObjects();
+    void deleteObject(int id);
+    void saveObject(ObjectsEntity object);
 }

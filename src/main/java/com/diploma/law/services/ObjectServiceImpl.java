@@ -27,4 +27,14 @@ public class ObjectServiceImpl implements ObjectService{
     public List<ObjectsEntity> findAllObjects() {
         return object.findAllObjects();
     }
+
+    @Override
+    public void deleteObject(int id) {
+        object.deleteObject(id);
+    }
+
+    @Override
+    public void saveObject(ObjectsEntity object1) {
+object.saveObject(object1);
+    }
 }

@@ -1,9 +1,13 @@
 package com.diploma.law.DAO;
+import com.diploma.law.models.GrammarsEntity;
 import com.diploma.law.models.LemmasEntity;
 import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Repository("LemmaDAO")
@@ -22,11 +26,18 @@ public class LemmaDAOImpl extends AbstractDAO<Integer,LemmasEntity> implements L
         return (LemmasEntity) criteria.uniqueResult();
     }
 
+
     @Override
-    public Set<LemmasEntity> findAllLemmas() {
-        Criteria criteria = getSession().createCriteria(LemmasEntity.class);
-      //  criteria.setFetchMode("grammars", FetchMode.DEFAULT);
-     //   criteria.setFetchMode("object", FetchMode.DEFAULT);
-        return (Set<LemmasEntity>) criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+    public List<LemmasEntity> findAllLemmas() {
+        SQLQuery query = getSession().createSQLQuery("select * from Lemmas LIMIT 20");
+        List<Object[]> rows = query.list();
+        List<LemmasEntity> lemm = new ArrayList<>();
+        for(Object[] row : rows){
+            LemmasEntity lemma = new LemmasEntity();
+            lemma.setIdLemma(Integer.parseInt(row[0].toString()));
+            lemma.setTitle(row[1].toString());
+            lemm.add(lemma);
+        }
+        return lemm;
     }
 }
