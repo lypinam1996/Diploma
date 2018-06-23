@@ -100,7 +100,7 @@ public class MainController {
                 if(victims.isEmpty()){
                     victims.add("Не определён");
                 }
-                model.addAttribute("articles", articles);
+                model.addAttribute("articles", articles.get(0));
                 model.addAttribute("subjects", subjects);
                 model.addAttribute("victims", victims);
                 problem.setSubject(subjects.get(0));

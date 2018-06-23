@@ -184,7 +184,7 @@ public class AlgorithmServiceImple implements AlgorithmService{
             }
             Collection<Integer> numbers = grammarsLemmasNouns.keySet();
             for (Integer key : numbers) {
-                if (list.get(i).equals(key + 1)) {
+                if (list.get(i).equals(key)) {
                     Map<LemmasEntity, List<GrammarsEntity>> map = grammarsLemmasNouns.get(key);
                     Collection<LemmasEntity> title = map.keySet();
                     for (LemmasEntity key2 : title) {
@@ -220,7 +220,7 @@ public class AlgorithmServiceImple implements AlgorithmService{
                 for (int x = 0; x < nouns.size(); x++) {
                     if(!nouns.isEmpty() && res.get(i)>0) {
                         String[] synt = nouns.get(x);
-                        if (Integer.parseInt(synt[0]) == res.get(j)) {
+                        if (Integer.parseInt(synt[0])-1 == res.get(j)) {
                             nouns.remove(synt);
                         }
                     }
@@ -236,7 +236,7 @@ public class AlgorithmServiceImple implements AlgorithmService{
         if(!nouns.isEmpty()) {
             int predInt2 = -1;
             if (nouns.size() > 2) {
-                predInt2 = Integer.parseInt(nouns.get(2)[0]);
+                predInt2 = Integer.parseInt(nouns.get(0)[0]);
                 res.add(predInt2);
                 res.addAll(helpFormList(nouns, predInt2, grammarsLemmasNouns));
             } else {
@@ -255,13 +255,13 @@ public class AlgorithmServiceImple implements AlgorithmService{
         GrammarsEntity gramPatr = grammarsService.findById("Patr");
         Collection<Integer> numbers = grammarsLemmasNouns.keySet();
         for (Integer key : numbers) {
-            if(key==predInt-2 || key==predInt){
+            if(key==predInt-1 || key==predInt+1){
                 Map<LemmasEntity, List<GrammarsEntity>> map = grammarsLemmasNouns.get(key);
                 Collection<LemmasEntity> title = map.keySet();
                 for (LemmasEntity key2 : title) {
                     List<GrammarsEntity>  gramms = key2.getGrammars();
                     if(gramms.contains(gramName) || gramms.contains(gramSurn) || gramms.contains(gramPatr)){
-                            res.add(key + 1);
+                            res.add(key);
 
                     }
                 }
