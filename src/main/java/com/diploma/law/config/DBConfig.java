@@ -7,14 +7,13 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
 import javax.sql.DataSource;
 import java.util.Properties;
 
-
 @Configuration
 @EnableTransactionManagement
-public class DBConfig {
+public class DBConfig
+{
 
     @Value("${spring.datasource.driver-class-name}")
     private String DB_DRIVER;
@@ -43,7 +42,8 @@ public class DBConfig {
     private String ENTITY_PACKEGES_TO_SCAN;
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource()
+    {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(DB_DRIVER);
         dataSource.setUrl(DB_URL);
@@ -53,7 +53,8 @@ public class DBConfig {
     }
 
     @Bean
-    public LocalSessionFactoryBean localSessionFactory() {
+    public LocalSessionFactoryBean localSessionFactory()
+    {
         LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
         sessionFactoryBean.setDataSource(dataSource());
         sessionFactoryBean.setPackagesToScan(ENTITY_PACKEGES_TO_SCAN);
@@ -67,7 +68,8 @@ public class DBConfig {
     }
 
     @Bean
-    public HibernateTransactionManager transactionManager() {
+    public HibernateTransactionManager transactionManager()
+    {
         HibernateTransactionManager transactionManager = new HibernateTransactionManager();
         transactionManager.setSessionFactory(localSessionFactory().getObject());
         return transactionManager;

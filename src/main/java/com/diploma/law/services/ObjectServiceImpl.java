@@ -1,4 +1,5 @@
 package com.diploma.law.services;
+
 import com.diploma.law.DAO.ObjectDAO;
 import com.diploma.law.models.ObjectsEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,33 +9,39 @@ import java.util.List;
 
 @Service("ObjectService")
 @Transactional
-public class ObjectServiceImpl implements ObjectService{
+public class ObjectServiceImpl implements ObjectService
+{
 
     @Autowired
     ObjectDAO object;
 
     @Override
-    public ObjectsEntity findById(int id) {
+    public ObjectsEntity findById(int id)
+    {
         return object.findById(id);
     }
 
     @Override
-    public ObjectsEntity FindByTitle(String title) {
+    public ObjectsEntity FindByTitle(String title)
+    {
         return object.FindByTitle(title);
     }
 
     @Override
-    public List<ObjectsEntity> findAllObjects() {
+    public List<ObjectsEntity> findAllObjects()
+    {
         return object.findAllObjects();
     }
 
     @Override
-    public void deleteObject(int id) {
+    public void deleteObject(int id)
+    {
         object.deleteObject(id);
     }
 
     @Override
-    public void saveObject(ObjectsEntity object1) {
-object.saveObject(object1);
+    public void saveObject(ObjectsEntity object1)
+    {
+        object.saveObject(object1);
     }
 }

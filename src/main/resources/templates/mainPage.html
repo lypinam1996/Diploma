@@ -4,16 +4,18 @@
     <title>Main page</title>
     <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
 </head>
 <body>
-
 <div class="container">
     <form th:action="@{/logout}" method="post">
-        <button class="btn btn-md btn-warning btn-block" type="submit">Выйти</button>
+        <button class="btn btn-md btn-secondary btn-block" type="submit">Выйти</button>
     </form>
-    <h2 align="center">  Прошлые задачи   </h2>
+    <h2 align="center"> Прошлые задачи </h2>
     <table class="table table-hover">
         <tr>
             <td>Краткая информация</td>
@@ -31,9 +33,8 @@
         </tr>
     </table>
     <form th:action="@{/problem}" method="post">
-        <button class="btn btn-md btn-warning btn-block" type="submit">Решить задачу</button>
+        <button class="btn btn-md btn-secondary btn-block" type="submit">Решить задачу</button>
     </form>
 </div>
-
 </body>
 </html>

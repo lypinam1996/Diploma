@@ -1,77 +1,81 @@
 package com.diploma.law.models;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
-
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "Objects", schema = "law", catalog = "")
-public class ObjectsEntity {
-    private int idObject;
-    private String title;
+public class ObjectsEntity
+{
+    private int                         idObject;
+    private String                      title;
     private List<ClarifyingFactsEntity> clarifyingfacts;
-    private List<LemmasEntity> lemmas;
+    private List<LemmasEntity>          lemmas;
 
     @LazyCollection(LazyCollectionOption.FALSE)
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "ObjectsLemmas",
-            joinColumns = {
-                    @JoinColumn(name = "idObject")},
-            inverseJoinColumns = {
-                    @JoinColumn(name = "idLemma")})
-    public List<LemmasEntity> getLemmas() {
+    @JoinTable(name = "ObjectsLemmas", joinColumns = { @JoinColumn(name = "idObject") }, inverseJoinColumns = {
+            @JoinColumn(name = "idLemma") })
+    public List<LemmasEntity> getLemmas()
+    {
         return lemmas;
     }
 
-    public void setLemmas(List<LemmasEntity> lemmas) {
+    public void setLemmas(List<LemmasEntity> lemmas)
+    {
         this.lemmas = lemmas;
     }
 
-
     @OneToMany(mappedBy = "object")
-    public List<ClarifyingFactsEntity> getClarifyingfacts() {
+    public List<ClarifyingFactsEntity> getClarifyingfacts()
+    {
         return clarifyingfacts;
     }
 
-    public void setClarifyingfacts(List<ClarifyingFactsEntity> clarifyingfacts) {
+    public void setClarifyingfacts(List<ClarifyingFactsEntity> clarifyingfacts)
+    {
         this.clarifyingfacts = clarifyingfacts;
     }
 
     @Id
     @Column(name = "idObject")
-    public int getIdObject() {
+    public int getIdObject()
+    {
         return idObject;
     }
 
-    public void setIdObject(int idObject) {
+    public void setIdObject(int idObject)
+    {
         this.idObject = idObject;
     }
 
     @Basic
     @Column(name = "title")
-    public String getTitle() {
+    public String getTitle()
+    {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(String title)
+    {
         this.title = title;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o)
+    {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ObjectsEntity that = (ObjectsEntity) o;
-        return idObject == that.idObject &&
-                Objects.equals(title, that.title);
+        ObjectsEntity that = (ObjectsEntity)o;
+        return idObject == that.idObject && Objects.equals(title, that.title);
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
 
         return Objects.hash(idObject, title);
     }

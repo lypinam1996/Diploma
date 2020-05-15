@@ -4,23 +4,22 @@
     <title>Problems</title>
     <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="spinner" class="spinner" style="display:none;">
     <img id="img-spinner" th:src="@{/img/loader.gif}" alt="Loading"/>
 </div>
-
-<div class="container" >
+<div class="container">
     <form th:action="@{/logout}" method="post">
-        <button class="btn btn-md btn-warning btn-block" type="submit">Выйти</button>
+        <button class="btn btn-md btn-secondary btn-block" type="submit">Выйти</button>
     </form>
-
     <div class="row">
         <div class="col-md-6" style="margin-top: 25px">
-
             <form autocomplete="off" th:action="@{/problem}"
                   th:object="${problem}" method="post" class="form-horizontal"
                   role="form">
@@ -30,46 +29,60 @@
                                class="validation-message"></label>
                         <input type="text" th:field="*{title}" placeholder="Краткая информация"
                                class="form-control"/>
-                        <textarea th:rows="18"  type="text" th:field="*{text}" placeholder="Текст"
-                               class="form-control" style="margin-top: 10px"/>
+                        <textarea th:rows="18" type="text" th:field="*{text}" placeholder="Текст"
+                                  class="form-control" style="margin-top: 10px"/>
                     </div>
                 </div>
                 <div class="form-group">
-                    <div >
-                        <button type="submit" class="btn btn-primary btn-block button-upload">Решить</button>
+                    <div>
+                        <button type="submit" class="btn btn-info btn-block button-upload">Решить</button>
                     </div>
                 </div>
-
                 <span th:utext="${successMessage}"></span>
-
             </form>
-
         </div>
         <div class="col-md-6" style="margin-top: 25px">
-        <table class="table table-hover">
-            <tr th:each="a : ${articles}">
-            <tr> <td>Статья</td> <td th:text=" ${a.number}"></td></tr>
-            <tr> <td>Глава</td><td th:text="${a.section}"></td></tr>
-            <tr> <td>Название</td>  <td th:text="${a.title}"></td></tr>
-            <tr> <td>Содержание</td> <td th:text="${a.text}"></td></tr>
-            </tr>
-            <tr th:each="s : ${subjects}">
-            <tr>  <td>Субъект преступления</td><td th:text=" ${s}"></td></tr>
-            </tr>
-            <tr th:each="v : ${victims}">
-            <tr><td>Объект преступления</td> <td th:text=" ${v}"></td></tr>
-            </tr>
-        </table>
+            <table class="table table-hover">
+                <tr th:each="a : ${articles}">
+                <tr>
+                    <td>Статья</td>
+                    <td th:text=" ${a.number}"></td>
+                </tr>
+                <tr>
+                    <td>Глава</td>
+                    <td th:text="${a.section}"></td>
+                </tr>
+                <tr>
+                    <td>Название</td>
+                    <td th:text="${a.title}"></td>
+                </tr>
+                <tr>
+                    <td>Содержание</td>
+                    <td th:text="${a.text}"></td>
+                </tr>
+                </tr>
+                <tr th:each="s : ${subjects}">
+                <tr>
+                    <td>Субъект преступления</td>
+                    <td th:text=" ${s}"></td>
+                </tr>
+                </tr>
+                <tr th:each="v : ${victims}">
+                <tr>
+                    <td>Объект преступления</td>
+                    <td th:text=" ${v}"></td>
+                </tr>
+                </tr>
+            </table>
         </div>
     </div>
-
     <form th:action="@{/home}" method="get">
-        <button class="btn btn-md btn-warning btn-block">На главную</button>
+        <button class="btn btn-md btn-secondary btn-block">На главную</button>
     </form>
 </div>
 <script type="text/javascript">
-    $(document).ready(function(){
-        $('#button-upload').click(function() {
+    $(document).ready(function () {
+        $('#button-upload').click(function () {
             $('#spinner').show();
         });
     });

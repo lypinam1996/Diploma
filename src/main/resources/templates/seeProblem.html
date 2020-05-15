@@ -4,31 +4,57 @@
     <title>See</title>
     <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
 </head>
 <body>
-
 <div class="container">
     <form th:action="@{/logout}" method="post">
-        <button class="btn btn-md btn-warning btn-block" type="submit">Выйти</button>
+        <button class="btn btn-md btn-secondary btn-block" type="submit">Выйти</button>
     </form>
-    <h2 align="center"> Задача   </h2>
+    <h2 align="center"> Задача </h2>
     <table class="table table-hover">
         <tr th:each="t : ${task}">
-        <tr> <td>Краткая информация по делу</td><td th:text="${t.title}">&nbsp;</td></tr>
-        <tr> <td>Текст дела</td><td th:text="${t.text}">&nbsp;</td></tr>
-        <tr> <td>Субъект</td> <td th:text="${t.subject}"></td></tr>
-        <tr> <td>Потерпевший</td> <td th:text="${t.victims}"></td></tr>
+        <tr>
+            <td>Краткая информация по делу</td>
+            <td th:text="${t.title}">&nbsp;</td>
+        </tr>
+        <tr>
+            <td>Текст дела</td>
+            <td th:text="${t.text}">&nbsp;</td>
+        </tr>
+        <tr>
+            <td>Субъект</td>
+            <td th:text="${t.subject}"></td>
+        </tr>
+        <tr>
+            <td>Потерпевший</td>
+            <td th:text="${t.victims}"></td>
+        </tr>
         </tr>
         <tr th:each="a : ${articles}">
-        <tr> <td>Статья</td> <td th:text=" ${a.number}"></td></tr>
-        <tr> <td>Глава</td><td th:text="${a.section}"></td></tr>
-        <tr> <td>Название</td>  <td th:text="${a.title}"></td></tr>
-        <tr> <td>Содержание</td> <td th:text="${a.text}"></td></tr>
+        <tr>
+            <td>Статья</td>
+            <td th:text=" ${a.number}"></td>
+        </tr>
+        <tr>
+            <td>Глава</td>
+            <td th:text="${a.section}"></td>
+        </tr>
+        <tr>
+            <td>Название</td>
+            <td th:text="${a.title}"></td>
+        </tr>
+        <tr>
+            <td>Содержание</td>
+            <td th:text="${a.text}"></td>
+        </tr>
         </tr>
     </table>
-    <a th:href="@{'/home'}" class="btn btn-md btn-warning btn-block">На главную</a>
+    <a th:href="@{'/home'}" class="btn btn-md btn-secondary btn-block">На главную</a>
 </div>
 </body>
 </html>
