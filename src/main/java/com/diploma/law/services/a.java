@@ -4,15 +4,15 @@ import com.pullenti.morph.MorphGender;
 import com.pullenti.morph.MorphLang;
 import com.pullenti.ner.*;
 import com.pullenti.ner.core.*;
-import com.pullenti.ner.keyword.KeywordAnalyzer;
 import com.pullenti.ner.keyword.KeywordReferent;
+import com.pullenti.ner.weapon.WeaponAnalyzer;
 import com.pullenti.unisharp.Stopwatch;
 import com.pullenti.unisharp.Utils;
 
 public class a
 {
 
-    public static void main(String[] args) throws Exception, java.io.IOException
+    public static void main(String[] args) throws Exception
     {
         Stopwatch sw = Utils.startNewStopwatch();
         // инициализация - необходимо проводить один раз до обработки текстов
@@ -22,7 +22,7 @@ public class a
         sw.stop();
         System.out.println("OK (by " + ((int)sw.getElapsedMilliseconds()) + " ms), version " + ProcessorService.getVersion());
         // анализируемый текст
-        String txt = "Единственным конкурентом «Трансмаша» на этом сомнительном тендере было ООО «Плассер Алека Рейл Сервис», основным владельцем которого является австрийская компания «СТЦ-Холдинг ГМБХ». До конца 2011 г. эта же фирма была совладельцем «Трансмаша» вместе с «Тако» Краснова. Зато совладельцем «Плассера», также до конца 2011 г., был тот самый Карл Контрус, который имеет четверть акций «Трансмаша». ";
+        String txt = "Петров Алексей отдал пистолет Александру Сергеевичу.";
         System.out.println("Text: " + txt);
         // запускаем обработку на пустом процессоре (без анализаторов NER)
         AnalysisResult are = ProcessorService.getEmptyProcessor().process(new SourceOfAnalysis(txt), null, null);
@@ -68,13 +68,13 @@ public class a
                 t = npt.getEndToken();
             }
         }
-        try (Processor proc = ProcessorService.createSpecificProcessor(KeywordAnalyzer.ANALYZER_NAME))
+            try (Processor proc = ProcessorService.createSpecificProcessor(WeaponAnalyzer.ANALYZER_NAME))
         {
             AnalysisResult ar = proc.process(new SourceOfAnalysis(txt), null, null);
             System.out.println("\r\n==========================================\r\nKeywords1: ");
             for (Referent e : ar.getEntities())
             {
-                if (e instanceof KeywordReferent) System.out.println(e);
+                System.out.println(e);
             }
 
             System.out.println("\r\n==========================================\r\nKeywords2: ");

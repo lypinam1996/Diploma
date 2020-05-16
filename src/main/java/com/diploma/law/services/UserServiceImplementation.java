@@ -1,13 +1,17 @@
 package com.diploma.law.services;
 
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.diploma.law.DAO.StatusDAO;
 import com.diploma.law.DAO.UserDAO;
 import com.diploma.law.models.StatusEntity;
 import com.diploma.law.models.UsersEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
 
 @Service("UsersService")
 @Transactional
@@ -45,5 +49,13 @@ public class UserServiceImplementation implements UserService
 
         userDao.saveUser(user);
 
+    }
+
+    @Override
+    public UsersEntity getUser()
+    {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UsersEntity user = FindByLogin(auth.getName());
+        return user;
     }
 }

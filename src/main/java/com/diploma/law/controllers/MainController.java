@@ -1,9 +1,7 @@
 package com.diploma.law.controllers;
 
-import com.diploma.law.models.*;
-import com.diploma.law.services.*;
-import com.github.oxaoo.mp4ru.exceptions.FailedParsingException;
-import com.github.oxaoo.mp4ru.exceptions.InitRussianParserException;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +13,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import java.util.*;
+
+import com.diploma.law.models.ArticlesEntity;
+import com.diploma.law.models.ProblemsEntity;
+import com.diploma.law.models.UsersEntity;
+import com.diploma.law.services.AlgorithmService;
+import com.diploma.law.services.TaskService;
+import com.diploma.law.services.UserService;
 
 @Controller
 public class MainController
@@ -34,8 +38,7 @@ public class MainController
     public String getTasks(Model model)
     {
         List<ProblemsEntity> tasks;
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UsersEntity user = userService.FindByLogin(auth.getName());
+        UsersEntity user = userService.getUser();
         String page;
         if (user.getIdUser() == 1)
         {
@@ -61,18 +64,7 @@ public class MainController
     @RequestMapping(value = "/problem", method = RequestMethod.POST)
     public String add(@ModelAttribute("problem") ProblemsEntity problem, Model model, BindingResult bindingResult)
     {
-
-        if (problem.getText() != null)
-        {
-            List<ArticlesEntity> articles = algorithm.qualifyOffense(problem, bindingResult);
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            UsersEntity user = userService.FindByLogin(auth.getName());
-            problem.setUsersByUser(user);
-            problem.setArticle(articles);
-            problem.setText(problem.getText());
-            model.addAttribute("articles", articles.get(0));
-            taskService.saveTask(problem);
-        }
+        model = algorithm.qualifyOffense(problem, model, bindingResult);
         return "problem";
     }
 
@@ -96,5 +88,6 @@ public class MainController
         model.setViewName("deleteProblem");
         return model;
     }
+
 
 }

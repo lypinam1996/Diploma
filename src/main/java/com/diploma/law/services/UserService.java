@@ -9,4 +9,6 @@ public interface UserService
     UsersEntity FindByLogin(String title);
 
     void saveUser(UsersEntity user);
+
+    UsersEntity getUser();
 }
