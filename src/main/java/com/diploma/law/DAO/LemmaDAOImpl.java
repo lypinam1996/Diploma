@@ -1,12 +1,14 @@
 package com.diploma.law.DAO;
 
-import com.diploma.law.models.LemmasEntity;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.diploma.law.models.LemmasEntity;
 
 @Repository("LemmaDAO")
 public class LemmaDAOImpl extends AbstractDAO<Integer, LemmasEntity> implements LemmaDAO

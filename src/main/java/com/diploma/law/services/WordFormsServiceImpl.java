@@ -1,11 +1,14 @@
 package com.diploma.law.services;
 
-import com.diploma.law.DAO.WordFormsDAO;
-import com.diploma.law.models.WordformsEntity;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
-import java.util.List;
+
+import com.diploma.law.DAO.WordFormsDAO;
+import com.diploma.law.models.WordformsEntity;
 
 @Service("WordFormsService")
 @Transactional

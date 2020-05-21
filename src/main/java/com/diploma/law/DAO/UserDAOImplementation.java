@@ -1,10 +1,12 @@
 package com.diploma.law.DAO;
 
-import com.diploma.law.models.UsersEntity;
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+
+import com.diploma.law.models.UsersEntity;
 
 @Repository("UserDAO")
 public class UserDAOImplementation extends AbstractDAO<Integer, UsersEntity> implements UserDAO

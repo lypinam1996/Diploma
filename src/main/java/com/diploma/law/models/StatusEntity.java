@@ -1,8 +1,9 @@
 package com.diploma.law.models;
 
-import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "status", schema = "law", catalog = "")

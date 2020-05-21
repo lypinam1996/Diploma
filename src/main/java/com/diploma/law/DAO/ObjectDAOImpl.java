@@ -1,12 +1,13 @@
 package com.diploma.law.DAO;
 
-import com.diploma.law.models.ObjectsEntity;
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.diploma.law.models.ObjectsEntity;
 
 @Repository("ObjectDAO")
 public class ObjectDAOImpl extends AbstractDAO<Integer, ObjectsEntity> implements ObjectDAO

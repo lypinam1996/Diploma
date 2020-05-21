@@ -1,23 +1,23 @@
 package com.diploma.law.dto;
 
+import java.util.List;
+import java.util.Map;
+
 import com.diploma.law.models.ClarifyingFactsEntity;
 import com.diploma.law.models.LemmasEntity;
 import com.diploma.law.models.ObjectsEntity;
-import com.diploma.law.models.WordformsEntity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainDto
 {
 
     private String                      text;
-    private ArrayList<String>           sentences;
-    private ArrayList<String>           words;
-    private ArrayList<WordformsEntity>  wordForms;
-    private ArrayList<LemmasEntity>     lemmas;
+    private List<String>                sentences;
+    //где i - порядковый номер предложения, list - все слова с их свойствами
+    private Map<Integer, List<WordDto>> wordMap;
+    private List<LemmasEntity>          allLemas;
     private ObjectsEntity               object;
     private List<ClarifyingFactsEntity> clarifyingFacts;
+    private int                         mainSentenceInt;
     private String                      mainSentence;
 
     public String getText()
@@ -30,44 +30,14 @@ public class MainDto
         this.text = text;
     }
 
-    public ArrayList<String> getSentences()
+    public List<String> getSentences()
     {
         return sentences;
     }
 
-    public void setSentences(ArrayList<String> sentences)
+    public void setSentences(List<String> sentences)
     {
         this.sentences = sentences;
-    }
-
-    public ArrayList<String> getWords()
-    {
-        return words;
-    }
-
-    public void setWords(ArrayList<String> words)
-    {
-        this.words = words;
-    }
-
-    public ArrayList<WordformsEntity> getWordForms()
-    {
-        return wordForms;
-    }
-
-    public void setWordForms(ArrayList<WordformsEntity> wordForms)
-    {
-        this.wordForms = wordForms;
-    }
-
-    public ArrayList<LemmasEntity> getLemmas()
-    {
-        return lemmas;
-    }
-
-    public void setLemmas(ArrayList<LemmasEntity> lemmas)
-    {
-        this.lemmas = lemmas;
     }
 
     public ObjectsEntity getObject()
@@ -90,11 +60,43 @@ public class MainDto
         this.clarifyingFacts = clarifyingFacts;
     }
 
-    public String getMainSentence() {
+    public Map<Integer, List<WordDto>> getWordMap()
+    {
+        return wordMap;
+    }
+
+    public void setWordMap(Map<Integer, List<WordDto>> wordMap)
+    {
+        this.wordMap = wordMap;
+    }
+
+    public List<LemmasEntity> getAllLemas()
+    {
+        return allLemas;
+    }
+
+    public void setAllLemas(List<LemmasEntity> allLemas)
+    {
+        this.allLemas = allLemas;
+    }
+
+    public String getMainSentence()
+    {
         return mainSentence;
     }
 
-    public void setMainSentence(String mainSentence) {
+    public void setMainSentence(String mainSentence)
+    {
         this.mainSentence = mainSentence;
+    }
+
+    public int getMainSentenceInt()
+    {
+        return mainSentenceInt;
+    }
+
+    public void setMainSentenceInt(int mainSentenceInt)
+    {
+        this.mainSentenceInt = mainSentenceInt;
     }
 }

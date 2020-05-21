@@ -1,7 +1,8 @@
 package com.diploma.law.services;
 
-import com.diploma.law.models.CorpusesEntity;
 import java.util.List;
+
+import com.diploma.law.models.CorpusesEntity;
 
 public interface CorpusService
 {

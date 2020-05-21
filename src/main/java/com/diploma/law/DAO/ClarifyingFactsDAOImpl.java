@@ -1,12 +1,14 @@
 package com.diploma.law.DAO;
 
-import com.diploma.law.models.ClarifyingFactsEntity;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.diploma.law.models.ClarifyingFactsEntity;
 
 @Repository("ClarifyingFactsDAO")
 public class ClarifyingFactsDAOImpl extends AbstractDAO<Integer, ClarifyingFactsEntity> implements ClarifyingFactsDAO
@@ -32,7 +34,7 @@ public class ClarifyingFactsDAOImpl extends AbstractDAO<Integer, ClarifyingFacts
     {
         Query query = getSession().createSQLQuery("select idClarifyingFact from ClarifyingFacts where idObject = :id");
         query.setInteger("id", id_obj);
-        List<Integer> listId = listId = query.list();
+        List<Integer> listId = query.list();
         ArrayList<ClarifyingFactsEntity> listClarFacts = new ArrayList<>();
         for (int i = 0; i < listId.size(); i++)
         {

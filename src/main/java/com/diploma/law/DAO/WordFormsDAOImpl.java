@@ -1,10 +1,12 @@
 package com.diploma.law.DAO;
 
-import com.diploma.law.models.WordformsEntity;
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+
+import com.diploma.law.models.WordformsEntity;
 
 @Repository("WordFormsDAO")
 public class WordFormsDAOImpl extends AbstractDAO<Integer, WordformsEntity> implements WordFormsDAO

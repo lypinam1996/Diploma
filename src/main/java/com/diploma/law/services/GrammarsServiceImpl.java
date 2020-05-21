@@ -1,10 +1,15 @@
 package com.diploma.law.services;
 
-import com.diploma.law.DAO.GrammarsDAO;
-import com.diploma.law.models.GrammarsEntity;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
+
+import com.diploma.law.DAO.GrammarsDAO;
+import com.diploma.law.models.GrammarsEntity;
 
 @Service("GrammarsService")
 @Transactional
@@ -15,9 +20,15 @@ public class GrammarsServiceImpl implements GrammarsService
     GrammarsDAO grammars;
 
     @Override
-    public GrammarsEntity findById(String id)
+    public List<GrammarsEntity> findById(int idLemma)
     {
-        return grammars.findById(id);
+        List<String> ids = grammars.findByLemmaId(idLemma);
+        List<GrammarsEntity> result = new ArrayList<>();
+        for (String id : ids)
+        {
+            result.add(grammars.findById(id));
+        }
+        return result;
     }
 
     @Override

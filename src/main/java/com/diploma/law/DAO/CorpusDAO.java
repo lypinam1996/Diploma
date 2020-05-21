@@ -1,7 +1,8 @@
 package com.diploma.law.DAO;
 
-import com.diploma.law.models.CorpusesEntity;
 import java.util.List;
+
+import com.diploma.law.models.CorpusesEntity;
 
 public interface CorpusDAO
 {

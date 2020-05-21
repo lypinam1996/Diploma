@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.diploma.law.dto.MainDto;
+import com.diploma.law.dto.WordDto;
 import com.diploma.law.models.ClarifyingFactsEntity;
 import com.diploma.law.models.LemmasEntity;
 import com.diploma.law.models.ObjectsEntity;
@@ -21,6 +22,8 @@ public class ParseServiceImpl implements ParseService
 
     @Autowired
     private WordFormsService wordFormsService;
+    @Autowired
+    private GrammarsService  grammarsService;
 
     @Override
     public MainDto parseText(String text)
@@ -29,27 +32,66 @@ public class ParseServiceImpl implements ParseService
         if (StringUtils.isNotEmpty(text))
         {
             mainDto.setText(text);
-            ArrayList<String> sentences = getSentences(text);
+            List<String> sentences = getSentences(text);
             mainDto.setSentences(sentences);
-            ArrayList<String> words = getWords(sentences);
-            mainDto.setWords(words);
-            ArrayList<WordformsEntity> wordForms = getWordForms(words);
-            mainDto.setWordForms(wordForms);
-            ArrayList<LemmasEntity> lemmas = getLemmas(wordForms);
-            mainDto.setLemmas(lemmas);
-            ObjectsEntity object = getObject(lemmas);
+            Map<Integer, List<WordDto>> wordsMap = parseSentences(sentences);
+            mainDto.setWordMap(wordsMap);
+            List<LemmasEntity> allLemmas = findAllLemmas(wordsMap);
+            mainDto.setAllLemas(allLemmas);
+            ObjectsEntity object = getObject(allLemmas);
             mainDto.setObject(object);
             if (object != null)
             {
-                mainDto.setMainSentence(getMainSentence(sentences, object));
-                List<ClarifyingFactsEntity> clarifyingFacts = getClarifyingFacts(lemmas, object.getClarifyingfacts());
+                getMainSentence(sentences, object, mainDto);
+                List<ClarifyingFactsEntity> clarifyingFacts = getClarifyingFacts(allLemmas, object.getClarifyingfacts());
                 mainDto.setClarifyingFacts(clarifyingFacts);
             }
         }
         return mainDto;
     }
 
-    private List<ClarifyingFactsEntity> getClarifyingFacts(ArrayList<LemmasEntity> lemmas, List<ClarifyingFactsEntity> clarifyingFacts)
+    private List<LemmasEntity> findAllLemmas(Map<Integer, List<WordDto>> wordsMap)
+    {
+        List<LemmasEntity> allLemmas = new ArrayList<>();
+        for (Map.Entry<Integer, List<WordDto>> entry : wordsMap.entrySet())
+        {
+            List<WordDto> wordDtos = entry.getValue();
+            for (WordDto wordDto : wordDtos)
+            {
+                allLemmas.add(wordDto.getLemmas());
+            }
+        }
+        return allLemmas;
+    }
+
+    private Map<Integer, List<WordDto>> parseSentences(List<String> sentences)
+    {
+        Map<Integer, List<WordDto>> wordsMap = new HashMap<>();
+        for (int i = 0; i < sentences.size(); i++)
+        {
+            List<WordDto> wordDtos = new ArrayList<>();
+            List<String> words = getWords(sentences.get(i));
+            for (String word : words)
+            {
+                WordDto wordDto = new WordDto();
+                wordDto.setWords(word);
+                List<WordformsEntity> wordForms = wordFormsService.FindByTitle(word);
+                if (!wordForms.isEmpty())
+                {
+                    wordDto.setWordForms(wordForms.get(0));
+                    LemmasEntity lemma = wordForms.get(0).getLemma();
+                    wordDto.setLemmas(lemma);
+                    wordDto.setObject(!lemma.getObjects().isEmpty());
+                    wordDto.setGrammars(grammarsService.findById(lemma.getIdLemma()));
+                    wordDtos.add(wordDto);
+                }
+            }
+            wordsMap.put(i + 1, wordDtos);
+        }
+        return wordsMap;
+    }
+
+    private List<ClarifyingFactsEntity> getClarifyingFacts(List<LemmasEntity> lemmas, List<ClarifyingFactsEntity> clarifyingFacts)
     {
         List<ClarifyingFactsEntity> result = new ArrayList<>();
         for (LemmasEntity lemma : lemmas)
@@ -65,70 +107,35 @@ public class ParseServiceImpl implements ParseService
         return result;
     }
 
-    private ObjectsEntity getObject(ArrayList<LemmasEntity> lemmas)
+    private ObjectsEntity getObject(List<LemmasEntity> lemmas)
     {
-        Set<ObjectsEntity> set = new HashSet<>();
         for (LemmasEntity lemma : lemmas)
         {
-            set.addAll(lemma.getObjects());
-        }
-        ObjectsEntity[] result = set.toArray(new ObjectsEntity[set.size()]);
-        if (result.length != 0)
-        {
-            return result[0];
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    private static ArrayList<LemmasEntity> getLemmas(ArrayList<WordformsEntity> wordformsEntities)
-    {
-        Set<LemmasEntity> set = new HashSet<>();
-        ArrayList<LemmasEntity> res = new ArrayList<>();
-        for (WordformsEntity wordformsEntity : wordformsEntities)
-        {
-            set.add(wordformsEntity.getLemma());
-        }
-        LemmasEntity[] result = set.toArray(new LemmasEntity[set.size()]);
-        Collections.addAll(res, result);
-        return res;
-    }
-
-    private ArrayList<WordformsEntity> getWordForms(ArrayList<String> words)
-    {
-        ArrayList<WordformsEntity> wordForms = new ArrayList<>();
-        for (String word : words)
-        {
-            List<WordformsEntity> list = wordFormsService.FindByTitle(word);
-            wordForms.addAll(list);
-        }
-        return wordForms;
-    }
-
-    private ArrayList<String> getWords(List<String> sentences)
-    {
-        ArrayList<String> words = new ArrayList<>();
-        for (int i = 0; i < sentences.size(); i++)
-        {
-            String sentence = sentences.remove(i);
-            sentence = sentence.replaceAll("[^A-Za-zА-Яа-я0-9 Ёё]", " ");
-            sentence = sentence.replaceAll(",", " ");
-            sentence = sentence.replaceAll(":", " ");
-            sentence = sentence.replaceAll(";", " ");
-            sentence = sentence.replaceAll(" {2}", " ");
-            sentences.add(i, sentence);
-            String[] word = sentences.get(i).split(" ");
-            for (String s : word)
+            if (!lemma.getObjects().isEmpty())
             {
-                words.add(s.trim());
+                return lemma.getObjects().get(0);
             }
+        }
+        return null;
+    }
+
+    private List<String> getWords(String sentence)
+    {
+        List<String> words = new ArrayList<>();
+        sentence = sentence.replaceAll("[^A-Za-zА-Яа-я0-9 Ёё]", " ");
+        sentence = sentence.replaceAll(",", " ");
+        sentence = sentence.replaceAll(":", " ");
+        sentence = sentence.replaceAll(";", " ");
+        sentence = sentence.replaceAll(" {2}", " ");
+        String[] word = sentence.split(" ");
+        for (String s : word)
+        {
+            words.add(s.trim());
         }
         return words;
     }
 
-    private ArrayList<String> getSentences(String text)
+    private List<String> getSentences(String text)
     {
         text = text.toLowerCase(new Locale("ru"));
         String[] sentences = text.split("\\.");
@@ -154,7 +161,7 @@ public class ParseServiceImpl implements ParseService
                 sentences[sentences.length - 1] = "";
             }
         }
-        ArrayList<String> res = new ArrayList<>();
+        List<String> res = new ArrayList<>();
         for (String sentence : sentences)
         {
             if (!sentence.equals(""))
@@ -165,20 +172,24 @@ public class ParseServiceImpl implements ParseService
         return res;
     }
 
-    private String getMainSentence(List<String> sentences, ObjectsEntity object)
+    private void getMainSentence(List<String> sentences, ObjectsEntity object, MainDto mainDto)
     {
         List<LemmasEntity> objectsLemma = object.getLemmas();
-        ArrayList<String> res = new ArrayList<>();
         for (LemmasEntity lemmasEntity : objectsLemma)
         {
-            for (String sentence : sentences)
+            for (WordformsEntity wordformsEntity : lemmasEntity.getWordforms())
             {
-                if (sentence.indexOf(lemmasEntity.getTitle()) > 0)
+
+                for (int i = 0; i < sentences.size(); i++)
                 {
-                    res.add(sentence);
+                    if (sentences.get(i).indexOf(wordformsEntity.getTitle()) > 0)
+                    {
+                        mainDto.setMainSentenceInt(i + 1);
+                        mainDto.setMainSentence(sentences.get(i));
+                        return;
+                    }
                 }
             }
         }
-        return res.get(0);
     }
 }

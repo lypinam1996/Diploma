@@ -1,10 +1,12 @@
 package com.diploma.law.controllers;
 
-import com.diploma.law.models.LemmasEntity;
-import org.springframework.format.Formatter;
-import org.springframework.stereotype.Controller;
 import java.text.ParseException;
 import java.util.Locale;
+
+import org.springframework.format.Formatter;
+import org.springframework.stereotype.Controller;
+
+import com.diploma.law.models.LemmasEntity;
 
 @Controller
 public class LemmaFormatter implements Formatter<LemmasEntity>

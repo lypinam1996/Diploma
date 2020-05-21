@@ -1,9 +1,9 @@
 package com.diploma.law.services;
 
+import java.util.List;
+
 import com.diploma.law.models.ProblemsEntity;
 import com.diploma.law.models.UsersEntity;
-
-import java.util.List;
 
 public interface TaskService
 {

@@ -1,12 +1,14 @@
 package com.diploma.law.DAO;
 
-import com.diploma.law.models.CorpusesEntity;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.diploma.law.models.CorpusesEntity;
 
 @Repository("CorpusDAO")
 public class CorpusDAOImpl extends AbstractDAO<Integer, CorpusesEntity> implements CorpusDAO

@@ -1,9 +1,10 @@
 package com.diploma.law.DAO;
 
+import java.lang.reflect.ParameterizedType;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import java.lang.reflect.ParameterizedType;
 
 public class AbstractDAO<K, E>
 {

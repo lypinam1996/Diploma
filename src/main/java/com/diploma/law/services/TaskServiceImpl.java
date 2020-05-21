@@ -1,12 +1,15 @@
 package com.diploma.law.services;
 
+import java.util.List;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.diploma.law.DAO.TaskDAO;
 import com.diploma.law.models.ProblemsEntity;
 import com.diploma.law.models.UsersEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import javax.transaction.Transactional;
-import java.util.List;
 
 @Service("TaskService")
 @Transactional
@@ -23,12 +26,14 @@ public class TaskServiceImpl implements TaskService
     }
 
     @Override
-    public void saveTask(ProblemsEntity task) {
+    public void saveTask(ProblemsEntity task)
+    {
         taskDAO.saveTask(task);
     }
 
     @Override
-    public List<ProblemsEntity> findTasks(UsersEntity user) {
+    public List<ProblemsEntity> findTasks(UsersEntity user)
+    {
         return taskDAO.findTasks(user);
     }
 

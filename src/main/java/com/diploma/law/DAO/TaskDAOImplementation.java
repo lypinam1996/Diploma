@@ -1,12 +1,14 @@
 package com.diploma.law.DAO;
 
-import com.diploma.law.models.ProblemsEntity;
-import com.diploma.law.models.UsersEntity;
+import java.util.List;
+
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+
+import com.diploma.law.models.ProblemsEntity;
+import com.diploma.law.models.UsersEntity;
 
 @Repository("TaskDAO")
 public class TaskDAOImplementation extends AbstractDAO<Integer, ProblemsEntity> implements TaskDAO

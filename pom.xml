@@ -109,13 +109,6 @@
 			<scope>system</scope>
 			<systemPath>/home/maria/pullenti.jar</systemPath>
 		</dependency>
-		<dependency>
-			<groupId>com.pullenti</groupId>
-			<artifactId>pullenti</artifactId>
-			<version>3.19-SNAPSHOT</version>
-			<scope>system</scope>
-			<systemPath>/home/maria/pullenti.jar</systemPath>
-		</dependency>
 	</dependencies>
 
 	<build>

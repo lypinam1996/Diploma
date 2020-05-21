@@ -3,8 +3,6 @@ package com.diploma.law.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,7 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.diploma.law.models.ArticlesEntity;
 import com.diploma.law.models.ProblemsEntity;
 import com.diploma.law.models.UsersEntity;
-import com.diploma.law.services.AlgorithmService;
+import com.diploma.law.services.QualifyOffenseService;
 import com.diploma.law.services.TaskService;
 import com.diploma.law.services.UserService;
 
@@ -32,7 +30,7 @@ public class MainController
     TaskService      taskService;
 
     @Autowired
-    AlgorithmService algorithm;
+    QualifyOffenseService algorithm;
 
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String getTasks(Model model)
@@ -88,6 +86,5 @@ public class MainController
         model.setViewName("deleteProblem");
         return model;
     }
-
 
 }

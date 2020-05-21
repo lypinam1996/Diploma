@@ -1,10 +1,12 @@
 package com.diploma.law.models;
 
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
+
+import javax.persistence.*;
+
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 @Entity
 @Table(name = "Problems", schema = "law", catalog = "")
@@ -18,6 +20,9 @@ public class ProblemsEntity
     private UsersEntity          usersByUser;
     private String               subject;
     private String               victims;
+    private String               date;
+    private String               address;
+    private String               weapon;
 
     @LazyCollection(LazyCollectionOption.FALSE)
     @ManyToMany(cascade = CascadeType.ALL)
@@ -94,6 +99,18 @@ public class ProblemsEntity
         this.text = text;
     }
 
+    @Basic
+    @Column(name = "date")
+    public String getDate()
+    {
+        return date;
+    }
+
+    public void setDate(String date)
+    {
+        this.date = date;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -133,5 +150,27 @@ public class ProblemsEntity
     public void setVictims(String victims)
     {
         this.victims = victims;
+    }
+
+    @Basic
+    @Column(name = "address")
+    public String getAddress()
+    {
+        return address;
+    }
+
+    public void setAddress(String address)
+    {
+        this.address = address;
+    }
+
+    @Basic
+    @Column(name = "weapon")
+    public String getWeapon() {
+        return weapon;
+    }
+
+    public void setWeapon(String weapon) {
+        this.weapon = weapon;
     }
 }
